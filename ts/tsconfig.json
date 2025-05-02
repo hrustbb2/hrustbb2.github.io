@@ -1,0 +1,21 @@
+{
+    "compileOnSave": true,
+    "strictNullChecks": false,
+    "compilerOptions": {
+      "experimentalDecorators": true,
+      "downlevelIteration": true,
+      "module": "amd",
+      "moduleResolution": "node",
+      "noImplicitAny": true,
+      "target": "es5",
+      "sourceMap": true,
+      "paths": {
+        "@common/*": [
+          "../../../src/Common/assets/*"
+        ]
+      }
+    },
+    "exclude": [
+      "./node_modules"
+    ]
+  }
