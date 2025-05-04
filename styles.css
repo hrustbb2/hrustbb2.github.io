@@ -1,0 +1,27 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.content {
+    width: 100vw; /* ширина 100% от ширины окна браузера */
+    height: 100vh; /* высота 100% от высоты окна браузера */
+    margin: 0; /* убираем внешние отступы */
+    padding: 0; /* убираем внутренние отступы, если есть */
+    box-sizing: border-box; /* чтобы paddings и borders входили в размеры */
+}
+
+.main-btn {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 10;
+}
+
+.main-menu {
+    width: 33vw;
+    height: 100vh;
+    background-color: #cccccc;
+    position: absolute;
+}
