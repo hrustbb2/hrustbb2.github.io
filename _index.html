@@ -1,22 +1,111 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My PWA</title>
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/easymde.min.css">
 </head>
-<body>
-    <button class="main-btn">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-card-text" viewBox="0 0 16 16">
-            <path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2z"/>
-            <path d="M3 5.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5M3 8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9A.5.5 0 0 1 3 8m0 2.5a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5"/>
+
+<body class="js-app-contaier">
+    <button class="js-main-btn main-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-card-text"
+            viewBox="0 0 16 16">
+            <path
+                d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2z" />
+            <path
+                d="M3 5.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5M3 8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9A.5.5 0 0 1 3 8m0 2.5a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5" />
         </svg>
     </button>
-    <div class="main-menu"></div>
-    <div class="content">
-
+    <div class="js-main-menu main-menu">
+        <div class="items-container">
+            <ul>
+                <li class="js-item">
+                    Доски
+                    <div class="js-subitem js-boards-panel subitem">
+                        <div class="js-content">
+                        </div>
+                        <label class="js-create-button" style="background-color: #004494; cursor: pointer;">NEW</label>
+                    </div>
+                </li>
+                <li class="js-item">
+                    Навигация
+                    <div class="js-subitem js-navigation-panel subitem">
+                        <ul class="js-list-container"></ul>
+                    </div>
+                </li>
+                <li class="js-item">
+                    Слои
+                    <div class="js-layers-panel js-subitem subitem">
+                        <div class="js-labels-container">
+                        </div>
+                        <label class="js-new-layer-btn" style="background-color: #004494; cursor: pointer;">NEW</label>
+                    </div>
+                </li>
+                <li class="js-item js-notes-btn">
+                    Заметки
+                </li>
+                <li class="js-item js-tags-btn">
+                    Тэги
+                </li>
+                <li class="js-item">
+                    Экспорт/Импорт
+                    <div class="js-subitem subitem">
+                        dfgdfg
+                        dfgdgdgd
+                        dfdg
+                    </div>
+                </li>
+            </ul>
+        </div>
     </div>
+    <div class="content">
+        <div class="js-notes notes"></div>
+        <div class="js-tags tags hide"></div>
+    </div>
+
+    <div class="js-node-modal modal hide">
+        <div class="js-modal-content modal-content">
+            <button class="js-close-btn close-button">×</button>
+            <div class="scrollable-content">
+                <div class="js-preview-container hide form-group">
+                    <label for="shortText">Короткий текст:</label>
+                    <textarea id="shortText" name="shortText" class="js-preview-input small-textarea"
+                        placeholder="Введите короткий текст"></textarea>
+                </div>
+                <div class="form-group">
+                    <textarea id="longText" name="longText" class="js-content-input large-textarea"
+                        placeholder="Введите длинный текст"></textarea>
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px; margin: 5px 0;">
+                <div class="js-tags-container" style="display: flex; gap: 10px;"></div>
+                <button type="submit" class="js-add-tag-btn">+</button>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button type="submit" class="js-edit-button input-btn">Редактировать</button>
+                <button type="submit" class="js-save-button input-btn">Сохранить</button>
+                <button type="submit" class="js-crypt-button input-btn">Зашифровать</button>
+            </div>
+            <div class="js-tags-modal modal hide">
+                <div class="js-tags-modal-content modal-content" style="width: 400px;">
+                    <div class="">
+                        <div class="complete-container">
+                            <input type="text" class="js-tag-input" placeholder="Название тэга ...">
+                            <button class="js-input-btn input-btn">➕</button>
+                            <ul class="js-autocomplete-list autocomplete-list hide">
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/distr/js/spa.js"></script>
 </body>
+
 </html>

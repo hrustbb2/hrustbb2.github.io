@@ -10,6 +10,9 @@ module.exports = {
         'service-worker': [
             './src/main.ts'
         ],
+        'spa': [
+            './spa/main.ts'
+        ],
     },
     output: {
         path: path.resolve(__dirname, '../distr/js'),
