@@ -42017,9 +42017,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                 .then(function (resp) {
                 if (resp.success) {
                     _this.mainMenu.getNavigationPanel().clear();
-                    _this.pane.clear();
                     _this.mainMenu.getNavigationPanel().loadNotes(resp.notes);
-                    _this.pane.loadNotes(resp.notes);
                 }
             });
             this.appCommands.getTagsWithLinks()

@@ -68,9 +68,7 @@ export class AppContainer {
             .then((resp: any) => {
                 if (resp.success) {
                     this.mainMenu.getNavigationPanel().clear();
-                    this.pane.clear();
                     this.mainMenu.getNavigationPanel().loadNotes(resp.notes);
-                    this.pane.loadNotes(resp.notes);
                 }
             });
 
