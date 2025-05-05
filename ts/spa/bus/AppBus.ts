@@ -79,4 +79,9 @@ export class AppBus extends Base {
     public showNotesPanel(): void {
         this.componentsFactory2.getAppContainer().showNotesPanel();
     }
+
+    public updateNavigatonPanel(): void
+    {
+        this.componentsFactory2.getAppContainer().updateNavigatonPanel();
+    }
 }

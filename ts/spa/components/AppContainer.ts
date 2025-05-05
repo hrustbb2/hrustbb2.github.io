@@ -34,6 +34,7 @@ export class AppContainer {
 
     public setCurrentBoard(board: TBoard): void {
         this.currentBoard = board;
+        this.mainMenu.getLayersPanel().clear();
         this.mainMenu.getLayersPanel().setCurrentBoard(board);
 
         this.pane.loadSettings(board);
@@ -52,6 +53,27 @@ export class AppContainer {
                     this.pane.loadLinks(resp.links);
                 }
             });
+        this.appCommands.getTagsWithLinks()
+            .then((resp: any) => {
+                if (resp.success) {
+                    this.tagsLinks = resp.tags;
+                    this.mainMenu.getNavigationPanel().load(resp.tags);
+                }
+            })
+    }
+
+    public updateNavigatonPanel(): void
+    {
+        this.appCommands.getNotes(this.currentBoard.id)
+            .then((resp: any) => {
+                if (resp.success) {
+                    this.mainMenu.getNavigationPanel().clear();
+                    this.pane.clear();
+                    this.mainMenu.getNavigationPanel().loadNotes(resp.notes);
+                    this.pane.loadNotes(resp.notes);
+                }
+            });
+
         this.appCommands.getTagsWithLinks()
             .then((resp: any) => {
                 if (resp.success) {

@@ -55,6 +55,7 @@ export class TagsPane extends AbstractPane {
                                 this.getStorage().remove(note);
                                 note.remove();
                                 this.linker.removeFor(note);
+                                (<AppBus>this.appBus).updateNavigatonPanel();
                             }
                         })
                 }
@@ -65,6 +66,7 @@ export class TagsPane extends AbstractPane {
                         if (resp.success) {
                             this.appBus.link(this.from.getId(), note.getId());
                             this.from = null;
+                            (<AppBus>this.appBus).updateNavigatonPanel();
                         }
                     });
             }
@@ -74,6 +76,7 @@ export class TagsPane extends AbstractPane {
                         if (resp.success) {
                             this.appBus.unlink(this.from, note);
                             this.from = null;
+                            (<AppBus>this.appBus).updateNavigatonPanel();
                         }
                     });
             }
@@ -94,6 +97,8 @@ export class TagsPane extends AbstractPane {
                                 x: coords.x,
                                 y: coords.y,
                             });
+
+                        // (<AppBus>this.appBus).updateNavigatonPanel();
                     }
                 });
             return;
@@ -121,6 +126,7 @@ export class TagsPane extends AbstractPane {
                     .then((resp: any) => {
                         if (resp.success) {
                             note.load(data);
+                            (<AppBus>this.appBus).updateNavigatonPanel();
                         }
                     });
             }

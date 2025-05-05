@@ -125,6 +125,9 @@ export class Linker {
     }
 
     public clear(): void {
+        for (let id in this.lines) {
+            this.lines[id].remove();
+        }
         this.lines = {};
     }
 

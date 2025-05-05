@@ -165,6 +165,8 @@ export class NodeModal {
                         this.container.classList.toggle('hide', true);
                     }
                 });
+
+            this.appBus.updateNavigatonPanel();
         }
 
         this.container.onclick = () => {

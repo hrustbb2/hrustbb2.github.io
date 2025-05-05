@@ -41360,6 +41360,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
         AppBus.prototype.showNotesPanel = function () {
             this.componentsFactory2.getAppContainer().showNotesPanel();
         };
+        AppBus.prototype.updateNavigatonPanel = function () {
+            this.componentsFactory2.getAppContainer().updateNavigatonPanel();
+        };
         return AppBus;
     }(AppBus_1.AppBus));
     exports.AppBus = AppBus;
@@ -41964,6 +41967,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         AppContainer.prototype.setCurrentBoard = function (board) {
             var _this = this;
             this.currentBoard = board;
+            this.mainMenu.getLayersPanel().clear();
             this.mainMenu.getLayersPanel().setCurrentBoard(board);
             this.pane.loadSettings(board);
             this.appCommands.getNotes(board.id)
@@ -41979,6 +41983,25 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                 .then(function (resp) {
                 if (resp.success) {
                     _this.pane.loadLinks(resp.links);
+                }
+            });
+            this.appCommands.getTagsWithLinks()
+                .then(function (resp) {
+                if (resp.success) {
+                    _this.tagsLinks = resp.tags;
+                    _this.mainMenu.getNavigationPanel().load(resp.tags);
+                }
+            });
+        };
+        AppContainer.prototype.updateNavigatonPanel = function () {
+            var _this = this;
+            this.appCommands.getNotes(this.currentBoard.id)
+                .then(function (resp) {
+                if (resp.success) {
+                    _this.mainMenu.getNavigationPanel().clear();
+                    _this.pane.clear();
+                    _this.mainMenu.getNavigationPanel().loadNotes(resp.notes);
+                    _this.pane.loadNotes(resp.notes);
                 }
             });
             this.appCommands.getTagsWithLinks()
@@ -42336,6 +42359,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                     }
                 }
             });
+        };
+        LayersPanel.prototype.clear = function () {
+            this.labels = [];
+            this.labelsContainer.innerHTML = '';
         };
         LayersPanel.prototype.init = function (container) {
             var _this = this;
@@ -42909,6 +42936,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
                         _this.container.classList.toggle('hide', true);
                     }
                 });
+                _this.appBus.updateNavigatonPanel();
             };
             this.container.onclick = function () {
                 _this.container.classList.toggle('hide', true);
@@ -43408,6 +43436,7 @@ var __values = (this && this.__values) || function(o) {
         };
         Pane.prototype.loadLinks = function (links) {
             var e_2, _a;
+            this.linker.clear();
             try {
                 for (var links_1 = __values(links), links_1_1 = links_1.next(); !links_1_1.done; links_1_1 = links_1.next()) {
                     var link = links_1_1.value;
@@ -43540,6 +43569,7 @@ var __values = (this && this.__values) || function(o) {
                                 _this.getStorage().remove(note);
                                 note.remove();
                                 _this.linker.removeFor(note);
+                                _this.appBus.updateNavigatonPanel();
                             }
                         });
                     }
@@ -43550,6 +43580,7 @@ var __values = (this && this.__values) || function(o) {
                         if (resp.success) {
                             _this.appBus.link(_this.from.getId(), note.getId());
                             _this.from = null;
+                            _this.appBus.updateNavigatonPanel();
                         }
                     });
                 }
@@ -43559,6 +43590,7 @@ var __values = (this && this.__values) || function(o) {
                         if (resp.success) {
                             _this.appBus.unlink(_this.from, note);
                             _this.from = null;
+                            _this.appBus.updateNavigatonPanel();
                         }
                     });
                 }
@@ -43578,6 +43610,7 @@ var __values = (this && this.__values) || function(o) {
                             x: coords.x,
                             y: coords.y,
                         });
+                        // (<AppBus>this.appBus).updateNavigatonPanel();
                     }
                 });
                 return;
@@ -43605,6 +43638,7 @@ var __values = (this && this.__values) || function(o) {
                         .then(function (resp) {
                         if (resp.success) {
                             note.load(data_1);
+                            _this.appBus.updateNavigatonPanel();
                         }
                     });
                 }
@@ -44464,6 +44498,71 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             this.linker.setLinesLayer(this.linesLayer);
             this.stage.add(this.linesLayer);
             var scaleBy = 1.05;
+            var lastCenter = null;
+            var lastDist = 0;
+            var dragStopped = false;
+            // https://konvajs.org/docs/sandbox/Multi-touch_Scale_Stage.html
+            this.stage.on('touchmove', function (e) {
+                e.evt.preventDefault();
+                var touch1 = e.evt.touches[0];
+                var touch2 = e.evt.touches[1];
+                // we need to restore dragging, if it was cancelled by multi-touch
+                if (touch1 && !touch2 && !_this.stage.isDragging() && dragStopped) {
+                    _this.stage.startDrag();
+                    dragStopped = false;
+                }
+                if (touch1 && touch2) {
+                    // if the stage was under Konva's drag&drop
+                    // we need to stop it, and implement our own pan logic with two pointers
+                    if (_this.stage.isDragging()) {
+                        dragStopped = true;
+                        _this.stage.stopDrag();
+                    }
+                    var p1 = {
+                        x: touch1.clientX,
+                        y: touch1.clientY,
+                    };
+                    var p2 = {
+                        x: touch2.clientX,
+                        y: touch2.clientY,
+                    };
+                    if (!lastCenter) {
+                        lastCenter = _this.getCenter(p1, p2);
+                        return;
+                    }
+                    var newCenter = _this.getCenter(p1, p2);
+                    var dist = _this.getDistance(p1, p2);
+                    if (!lastDist) {
+                        lastDist = dist;
+                    }
+                    // local coordinates of center point
+                    var pointTo = {
+                        x: (newCenter.x - _this.stage.x()) / _this.stage.scaleX(),
+                        y: (newCenter.y - _this.stage.y()) / _this.stage.scaleX(),
+                    };
+                    var scale_1 = _this.stage.scaleX() * (dist / lastDist);
+                    _this.stage.scaleX(scale_1);
+                    _this.stage.scaleY(scale_1);
+                    // calculate new position of the stage
+                    var dx = newCenter.x - lastCenter.x;
+                    var dy = newCenter.y - lastCenter.y;
+                    var newPos_1 = {
+                        x: newCenter.x - pointTo.x * scale_1 + dx,
+                        y: newCenter.y - pointTo.y * scale_1 + dy,
+                    };
+                    _this.stage.position(newPos_1);
+                    lastDist = dist;
+                    lastCenter = newCenter;
+                    clearTimeout(_this.timeout);
+                    _this.timeout = setTimeout(function () {
+                        _this.update({ scale: scale_1, x: newPos_1.x, y: newPos_1.y });
+                    }, 500);
+                }
+            });
+            this.stage.on('touchend', function () {
+                lastDist = 0;
+                lastCenter = null;
+            });
             this.stage.on('wheel', function (e) {
                 // stop default scrolling
                 e.evt.preventDefault();
@@ -44526,6 +44625,15 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             return check;
         };
         ;
+        AbstractPane.prototype.getDistance = function (p1, p2) {
+            return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
+        };
+        AbstractPane.prototype.getCenter = function (p1, p2) {
+            return {
+                x: (p1.x + p2.x) / 2,
+                y: (p1.y + p2.y) / 2,
+            };
+        };
         AbstractPane.prototype.resizeStage = function (h) {
             var width = this.container.clientWidth;
             this.stage.width(width);
@@ -44908,6 +45016,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             }
         };
         Linker.prototype.clear = function () {
+            for (var id in this.lines) {
+                this.lines[id].remove();
+            }
             this.lines = {};
         };
         return Linker;

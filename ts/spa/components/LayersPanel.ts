@@ -43,6 +43,12 @@ export class LayersPanel {
             });
     }
 
+    public clear(): void
+    {
+        this.labels = [];
+        this.labelsContainer.innerHTML = '';
+    }
+
     public init(container: HTMLElement): void {
         this.container = container;
         this.newLayerBtn = this.container.querySelector('.js-new-layer-btn');

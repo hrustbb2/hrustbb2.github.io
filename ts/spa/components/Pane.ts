@@ -164,6 +164,7 @@ export class Pane extends AbstractPane {
     }
 
     public loadLinks(links: any): void {
+        this.linker.clear();
         for (let link of links) {
             let from = this.storage.getById(link.from);
             let to = this.storage.getById(link.to);
