@@ -75,6 +75,7 @@ export class LayersPanel {
 
     private createLabel(): Label {
         let l = new Label();
+        l.setAppCommands(this.appCommands);
         l.setOnClick((self: Label) => {
             for (let i in this.labels) {
                 if (this.labels[i] === self) {
@@ -94,6 +95,15 @@ export class LayersPanel {
             }
             this.appBus.setVisibleLayers(visibleLayers);
         });
+        l.setOnDeleted((self: Label) => {
+            for (let i in this.labels) {
+                if (this.labels[i] === self) {
+                    this.labels[i].getTemplate().remove();
+                    delete this.labels[i];
+                    break;
+                }
+            }
+        });
         return l;
     }
 
@@ -102,16 +112,28 @@ export class LayersPanel {
 class Label {
 
     private html: string = `
-        <div style="cursor: pointer;"><input class="js-checkbox" type="checkbox" value=""></div>
+        <div style="cursor: pointer;">
+            <input class="js-checkbox" type="checkbox" value="">
+            <span class="js-title"></span>
+            <span class="js-delete-btn" style="margin-left: 10px;">×</span>
+        </div>
     `;
 
     private template: HTMLElement;
+
+    private title: HTMLElement;
+
+    private deleteBtn: HTMLElement;
 
     private checkbox: HTMLInputElement;
 
     private data: any;
 
+    private appCommands: AppComamnds;
+
     private onClick: (self: Label) => void;
+
+    private onDeleted: (self: Label) => void;
 
     private onCheckboxClick: (self: Label) => void;
 
@@ -127,6 +149,10 @@ class Label {
         this.onClick = c;
     }
 
+    public setOnDeleted(c: (self: Label) => void): void {
+        this.onDeleted = c;
+    }
+
     public setOnCheckboxClick(c: (self: Label) => void): void {
         this.onCheckboxClick = c;
     }
@@ -135,12 +161,18 @@ class Label {
         return this.checkbox.checked;
     }
 
+    public setAppCommands(c: AppComamnds): void {
+        this.appCommands = c;
+    }
+
     public constructor() {
         let div = document.createElement('div');
         div.innerHTML = this.html.trim();
 
         this.template = <HTMLElement>div.firstChild;
         this.checkbox = this.template.querySelector('.js-checkbox');
+        this.title = this.template.querySelector('.js-title');
+        this.deleteBtn = this.template.querySelector('.js-delete-btn');
     }
 
     public eventsListen(): void {
@@ -151,12 +183,18 @@ class Label {
             e.stopPropagation();
             this.onCheckboxClick(this);
         }
+        this.deleteBtn.onclick = (e: Event) => {
+            e.stopPropagation();
+            this.appCommands.deleteLayer(this.data.id);
+            this.onDeleted(this);
+        }
     }
 
     public load(data: any): void {
         this.data = data;
-        let t = document.createTextNode(' ' + data.name);
-        this.template.append(t);
+        // let t = document.createTextNode(' ' + data.name);
+        // this.template.append(t);
+        this.title.innerText = data.name;
     }
 
     public setActive(active: boolean): void {

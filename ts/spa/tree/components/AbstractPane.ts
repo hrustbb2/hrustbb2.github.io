@@ -34,6 +34,8 @@ export abstract class AbstractPane {
 
     protected currentBoard: TBoard;
 
+    protected longPressTimeout: any;
+
     public setAppBus(bus: AppBus): void {
         this.appBus = bus;
     }
@@ -100,6 +102,11 @@ export abstract class AbstractPane {
         // https://konvajs.org/docs/sandbox/Multi-touch_Scale_Stage.html
         this.stage.on('touchmove', (e) => {
             e.evt.preventDefault();
+            if (this.longPressTimeout) {
+                clearTimeout(this.longPressTimeout);
+                this.longPressTimeout = null;
+            }
+
             const touch1 = e.evt.touches[0];
             const touch2 = e.evt.touches[1];
 
@@ -170,9 +177,30 @@ export abstract class AbstractPane {
             }
         });
 
-        this.stage.on('touchend', function () {
+        this.stage.on('touchend', () => {
             lastDist = 0;
             lastCenter = null;
+            if (this.longPressTimeout) {
+                clearTimeout(this.longPressTimeout);
+                this.longPressTimeout = null;
+            }
+        });
+
+        this.stage.on('touchstart', (e) => {
+            let pos = this.stage.getPointerPosition();
+            let coords = {
+                x: (pos.x - this.stage.x()) / this.stage.scaleX(),
+                y: (pos.y - this.stage.y()) / this.stage.scaleY(),
+            };
+            let note = this.storage.getByCoords(coords);
+            if (!note) {
+                return;
+            }
+            this.longPressTimeout = setTimeout(() => {
+                // Длительное нажатие выполнено
+                navigator.vibrate(200);
+                this.longTouch(coords, e);
+            }, 800); // время в миллисекундах, например 800мс
         });
 
         this.stage.on('wheel', (e) => {
@@ -217,19 +245,19 @@ export abstract class AbstractPane {
             ev = 'tap';
         }
         this.stage.on(ev, (e) => {
-            // if (isHandled) return;
-            // isHandled = true;
-            // setTimeout(() => { isHandled = false; }, 200);
             let pos = this.stage.getPointerPosition();
             console.log(this.stage.x());
             console.log(this.stage.scaleX());
-            // let _scaleX = (this.stage.scaleX() == 0) ? 1 : this.stage.scaleX();
-            // let _scaleY = (this.stage.scaleY() == 0) ? 1 : this.stage.scaleY();
             let coords = {
                 x: (pos.x - this.stage.x()) / this.stage.scaleX(),
                 y: (pos.y - this.stage.y()) / this.stage.scaleY(),
             };
             this.click(coords, e);
+
+            if (this.longPressTimeout) {
+                clearTimeout(this.longPressTimeout);
+                this.longPressTimeout = null;
+            }
         });
 
         this.stage.on('dragend', (e) => {
@@ -260,6 +288,8 @@ export abstract class AbstractPane {
     }
 
     protected abstract click(coords: TCoordinates, e: any): void;
+
+    protected abstract longTouch(coords: TCoordinates, e: any): void;
 
     protected abstract update(board: TBoard): void;
 

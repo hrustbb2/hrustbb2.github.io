@@ -47,6 +47,16 @@ export class NotesLinksStorage {
         return table.where('from').equals(from).and(link => link.to == to).and(link => link.layerId == layerId).delete();
     }
 
+    public deleteForBoard(boardId: string): Promise<any> {
+        let table: Table = (<any>this.db).notesLinks;
+        return table.where('boardId').equals(boardId).delete();
+    }
+
+    public deleteForLayer(layerId: string): Promise<any> {
+        let table: Table = (<any>this.db).notesLinks;
+        return table.where('layerId').equals(layerId).delete();
+    }
+
     private getRandomString(length: number) {
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
         let result = '';

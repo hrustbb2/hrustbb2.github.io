@@ -40,6 +40,47 @@ export class TagsPane extends AbstractPane {
         this._isInited = true;
     }
 
+    protected longTouch(coords: TCoordinates, e: any): void {
+        let note = <Tag>(this.storage.getByCoords(coords));
+        if (this.from === null && note) {
+            this.from = note;
+            return;
+        }
+        if (this.from == note) {
+            if (confirm('Удалить?')) {
+                this.appCommands.deleteTag(note.getId())
+                    .then((resp: any) => {
+                        if (resp.success) {
+                            this.getStorage().remove(note);
+                            note.remove();
+                            this.linker.removeFor(note);
+                            (<AppBus>this.appBus).updateNavigatonPanel();
+                        }
+                    })
+            }
+        }
+        if (this.from && note && !this.linker.isLinked(this.from, note)) {
+            this.appCommands.linkTags(this.from.getId(), note.getId())
+                .then((resp: any) => {
+                    if (resp.success) {
+                        this.appBus.link(this.from.getId(), note.getId());
+                        this.from = null;
+                        (<AppBus>this.appBus).updateNavigatonPanel();
+                    }
+                });
+        }
+        if (this.from && note && this.linker.isLinked(this.from, note)) {
+            this.appCommands.unlinkTags(this.from.getId(), note.getId())
+                .then((resp: any) => {
+                    if (resp.success) {
+                        this.appBus.unlink(this.from, note);
+                        this.from = null;
+                        (<AppBus>this.appBus).updateNavigatonPanel();
+                    }
+                });
+        }
+    }
+
     protected click(coords: TCoordinates, e: any): void {
         let note = <Tag>(this.storage.getByCoords(coords));
         if (note && e.evt.ctrlKey) {

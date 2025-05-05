@@ -1,13 +1,34 @@
 import { Dexie, Table } from 'dexie';
 import "dexie-export-import";
 import { TBoard } from '../tree/types/TBoard';
+import { LayersStorage } from './LayersStorage';
+import { NotesLinksStorage } from './NotesLinksStorage';
+import { NotesStorage } from './NotesStorage';
 
 export class BoardsStorage {
 
     private db: Dexie;
 
+    private layersStorage: LayersStorage;
+
+    private notesLinksStorage: NotesLinksStorage;
+
+    private notesStorage: NotesStorage;
+
     public setDb(db: Dexie): void {
         this.db = db;
+    }
+
+    public setLayersStorage(storage: LayersStorage): void {
+        this.layersStorage = storage;
+    }
+
+    public setNotesLinksStorage(storage: NotesLinksStorage): void {
+        this.notesLinksStorage = storage;
+    }
+
+    public setNotesStorage(storage: NotesStorage): void {
+        this.notesStorage = storage;
     }
 
     public add(board: TBoard): void {
@@ -75,6 +96,14 @@ export class BoardsStorage {
             }
         };
         reader.readAsText(file);
+    }
+
+    public delete(id: string): Promise<any> {
+        this.layersStorage.deleteForBoard(id);
+        this.notesLinksStorage.deleteForBoard(id);
+        this.notesStorage.deleteForBoard(id);
+        let table: Table = (<any>this.db).boards;
+        return table.where('id').equals(id).delete();
     }
 
 }

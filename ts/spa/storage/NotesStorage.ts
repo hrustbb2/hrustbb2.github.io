@@ -37,4 +37,9 @@ export class NotesStorage {
         return table.where('id').equals(id).delete();
     }
 
+    public deleteForBoard(boardId: string): Promise<any> {
+        let table: Table = (<any>this.db).notesLinks;
+        return table.where('boardId').equals(boardId).delete();
+    }
+
 }

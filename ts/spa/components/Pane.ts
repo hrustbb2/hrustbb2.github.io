@@ -54,6 +54,47 @@ export class Pane extends AbstractPane {
         this._isInited = true;
     }
 
+    protected longTouch(coords: TCoordinates, e: any): void {
+        let note = this.storage.getByCoords(coords);
+        if (this.from === null && note) {
+            this.from = note;
+            return;
+        }
+        if (this.from == note) {
+            if (confirm('Удалить?')) {
+                this.appCommands.deleteNode(note.getId())
+                    .then((resp: any) => {
+                        if (resp.success) {
+                            this.getStorage().remove(note);
+                            note.remove();
+                            this.linker.removeFor(note);
+                        }
+                    })
+            }
+            this.from = null;
+            return;
+        }
+        if (this.from && note && !this.linker.isLinked(this.from, note)) {
+            this.appCommands.link(this.from.getId(), note.getId(), this.currentLayerTag, this.currentBoard.id)
+                .then((resp: any) => {
+                    if (resp.success) {
+                        this.appBus.link(this.from.getId(), note.getId());
+                        this.from = null;
+                    }
+                });
+            return;
+        }
+        if (this.from && note && this.linker.isLinked(this.from, note)) {
+            this.appCommands.unlink(this.from.getId(), note.getId(), this.currentLayerTag)
+                .then((resp: any) => {
+                    if (resp.success) {
+                        this.appBus.unlink(this.from, note);
+                        this.from = null;
+                    }
+                });
+        }
+    }
+
     protected click(coords: TCoordinates, e: any): void {
         let note = this.storage.getByCoords(coords);
         if (note && e.evt.ctrlKey) {

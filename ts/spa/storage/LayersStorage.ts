@@ -1,12 +1,19 @@
 import { Dexie, Table } from 'dexie';
 import { TLayer } from '../tree/types/TLayer';
+import { NotesLinksStorage } from './NotesLinksStorage';
 
 export class LayersStorage {
 
     private db: Dexie;
 
+    private notesLinksStorage: NotesLinksStorage;
+
     public setDb(db: Dexie): void {
         this.db = db;
+    }
+
+    public setNotesLinksStorage(storage: NotesLinksStorage): void {
+        this.notesLinksStorage = storage;
     }
 
     public add(layer: TLayer): void {
@@ -40,5 +47,16 @@ export class LayersStorage {
             result += chars.charAt(Math.floor(Math.random() * chars.length));
         }
         return result;
+    }
+
+    public deleteForBoard(boardId: string): Promise<any> {
+        let table: Table = (<any>this.db).layers;
+        return table.where('boardId').equals(boardId).delete();
+    }
+
+    public delete(id: string): Promise<any> {
+        this.notesLinksStorage.deleteForLayer(id);
+        let table: Table = (<any>this.db).layers;
+        return table.where('id').equals(id).delete();
     }
 }

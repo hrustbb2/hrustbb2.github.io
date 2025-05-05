@@ -69,6 +69,16 @@ export class AppComamnds {
         //     });
     }
 
+    public deleteBoard(id: string): Promise<any> {
+        return this.boardsStorage.delete(id)
+            .then(() => {
+                return Promise.resolve({
+                    success: true,
+                    errors: [],
+                });
+            });
+    }
+
     public createNote(note: TNote): Promise<any> {
         return this.notesStorage.createNote(note)
             .then(() => {
@@ -531,6 +541,16 @@ export class AppComamnds {
         //     .catch((error: any) => {
         //         return Promise.reject(error.response.data);
         //     });
+    }
+
+    public deleteLayer(id: string): Promise<any> {
+        return this.layersStorage.delete(id)
+            .then((resp: any) => {
+                return Promise.resolve({
+                    success: true,
+                    errors: [],
+                });
+            });
     }
 
     public getLayers(boardId: string): Promise<any> {

@@ -52,6 +52,12 @@ export class Factory {
         }
         this.boardsStorage = new BoardsStorage();
         this.boardsStorage.setDb(this.db);
+        let ls = this.getLayersStorage();
+        this.boardsStorage.setLayersStorage(ls);
+        let nl = this.getNotesLinksStorage();
+        this.boardsStorage.setNotesLinksStorage(nl);
+        let ns = this.getNotesStorage();
+        this.boardsStorage.setNotesStorage(ns);
         return this.boardsStorage;
     }
 
@@ -61,6 +67,8 @@ export class Factory {
         }
         this.layersStorage = new LayersStorage();
         this.layersStorage.setDb(this.db);
+        let nl = this.getNotesLinksStorage();
+        this.layersStorage.setNotesLinksStorage(nl);
         return this.layersStorage;
     }
 

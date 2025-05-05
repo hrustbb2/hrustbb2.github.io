@@ -41453,6 +41453,15 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             //         return Promise.reject(error.response.data);
             //     });
         };
+        AppComamnds.prototype.deleteBoard = function (id) {
+            return this.boardsStorage.delete(id)
+                .then(function () {
+                return Promise.resolve({
+                    success: true,
+                    errors: [],
+                });
+            });
+        };
         AppComamnds.prototype.createNote = function (note) {
             return this.notesStorage.createNote(note)
                 .then(function () {
@@ -41873,6 +41882,15 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             //         return Promise.reject(error.response.data);
             //     });
         };
+        AppComamnds.prototype.deleteLayer = function (id) {
+            return this.layersStorage.delete(id)
+                .then(function (resp) {
+                return Promise.resolve({
+                    success: true,
+                    errors: [],
+                });
+            });
+        };
         AppComamnds.prototype.getLayers = function (boardId) {
             return this.layersStorage.getList(boardId)
                 .then(function (layers) {
@@ -42175,6 +42193,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __values = (
         BoardsPanel.prototype.setAppBus = function (appBus) {
             this.appBus = appBus;
         };
+        BoardsPanel.prototype.setAppCommands = function (commands) {
+            this.appCommands = commands;
+        };
         BoardsPanel.prototype.init = function (container) {
             var _this = this;
             this.container = container;
@@ -42215,6 +42236,15 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __values = (
                     }
                     self.setActive(true);
                 });
+                item.setOnDeleted(function (self) {
+                    for (var i in _this.items) {
+                        if (_this.items[i].getData().id == self.getData().id) {
+                            _this.items[i].getTemplate().remove();
+                            delete _this.items[i];
+                            break;
+                        }
+                    }
+                });
                 _this.items.push(item);
             };
             this.items = [];
@@ -42246,6 +42276,15 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __values = (
                             }
                             self.setActive(true);
                         });
+                        item.setOnDeleted(function (self) {
+                            for (var i in _this.items) {
+                                if (_this.items[i].getData().id == self.getData().id) {
+                                    _this.items[i].getTemplate().remove();
+                                    delete _this.items[i];
+                                    break;
+                                }
+                            }
+                        });
                         _this.items.push(item);
                     }
                 }
@@ -42268,6 +42307,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __values = (
         };
         BoardsPanel.prototype.createItem = function () {
             var item = new BoardItem();
+            item.setAppCommands(this.appCommands);
             return item;
         };
         return BoardsPanel;
@@ -42285,11 +42325,17 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __values = (
         BoardItem.prototype.setOnClick = function (c) {
             this.onClick = c;
         };
+        BoardItem.prototype.setOnDeleted = function (c) {
+            this.onDeleted = c;
+        };
         BoardItem.prototype.getTemplate = function () {
             return this.template;
         };
         BoardItem.prototype.getData = function () {
             return this.data;
+        };
+        BoardItem.prototype.setAppCommands = function (commands) {
+            this.appCommands = commands;
         };
         BoardItem.prototype.load = function (data) {
             this.data = data;
@@ -42299,6 +42345,11 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __values = (
             var _this = this;
             this.template.onclick = function () {
                 _this.onClick(_this);
+            };
+            this.deleteBtn.onclick = function (e) {
+                e.stopPropagation();
+                _this.appCommands.deleteBoard(_this.data.id);
+                _this.onDeleted(_this);
             };
         };
         BoardItem.prototype.setActive = function (isActive) {
@@ -42383,6 +42434,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             bp.setBoardsStorage(boardsStorage);
             var appBus = this.appFactory.getCanvasFactory().getBusFactory().getAppBus();
             bp.setAppBus(appBus);
+            var appCommands = this.appFactory.getCommandsFactory().getAppCommands();
+            bp.setAppCommands(appCommands);
             return bp;
         };
         Factory.prototype.getNodeModal = function () {
@@ -42474,6 +42527,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         LayersPanel.prototype.createLabel = function () {
             var _this = this;
             var l = new Label();
+            l.setAppCommands(this.appCommands);
             l.setOnClick(function (self) {
                 for (var i in _this.labels) {
                     if (_this.labels[i] === self) {
@@ -42493,6 +42547,15 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                 }
                 _this.appBus.setVisibleLayers(visibleLayers);
             });
+            l.setOnDeleted(function (self) {
+                for (var i in _this.labels) {
+                    if (_this.labels[i] === self) {
+                        _this.labels[i].getTemplate().remove();
+                        delete _this.labels[i];
+                        break;
+                    }
+                }
+            });
             return l;
         };
         return LayersPanel;
@@ -42500,11 +42563,13 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
     exports.LayersPanel = LayersPanel;
     var Label = /** @class */ (function () {
         function Label() {
-            this.html = "\n        <div style=\"cursor: pointer;\"><input class=\"js-checkbox\" type=\"checkbox\" value=\"\"></div>\n    ";
+            this.html = "\n        <div style=\"cursor: pointer;\">\n            <input class=\"js-checkbox\" type=\"checkbox\" value=\"\">\n            <span class=\"js-title\"></span>\n            <span class=\"js-delete-btn\" style=\"margin-left: 10px;\">\u00D7</span>\n        </div>\n    ";
             var div = document.createElement('div');
             div.innerHTML = this.html.trim();
             this.template = div.firstChild;
             this.checkbox = this.template.querySelector('.js-checkbox');
+            this.title = this.template.querySelector('.js-title');
+            this.deleteBtn = this.template.querySelector('.js-delete-btn');
         }
         Label.prototype.getTemplate = function () {
             return this.template;
@@ -42515,11 +42580,17 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         Label.prototype.setOnClick = function (c) {
             this.onClick = c;
         };
+        Label.prototype.setOnDeleted = function (c) {
+            this.onDeleted = c;
+        };
         Label.prototype.setOnCheckboxClick = function (c) {
             this.onCheckboxClick = c;
         };
         Label.prototype.isChecked = function () {
             return this.checkbox.checked;
+        };
+        Label.prototype.setAppCommands = function (c) {
+            this.appCommands = c;
         };
         Label.prototype.eventsListen = function () {
             var _this = this;
@@ -42530,11 +42601,17 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                 e.stopPropagation();
                 _this.onCheckboxClick(_this);
             };
+            this.deleteBtn.onclick = function (e) {
+                e.stopPropagation();
+                _this.appCommands.deleteLayer(_this.data.id);
+                _this.onDeleted(_this);
+            };
         };
         Label.prototype.load = function (data) {
             this.data = data;
-            var t = document.createTextNode(' ' + data.name);
-            this.template.append(t);
+            // let t = document.createTextNode(' ' + data.name);
+            // this.template.append(t);
+            this.title.innerText = data.name;
         };
         Label.prototype.setActive = function (active) {
             if (active) {
@@ -43416,6 +43493,47 @@ var __values = (this && this.__values) || function(o) {
             _super.prototype.init.call(this, container);
             this._isInited = true;
         };
+        Pane.prototype.longTouch = function (coords, e) {
+            var _this = this;
+            var note = this.storage.getByCoords(coords);
+            if (this.from === null && note) {
+                this.from = note;
+                return;
+            }
+            if (this.from == note) {
+                if (confirm('Удалить?')) {
+                    this.appCommands.deleteNode(note.getId())
+                        .then(function (resp) {
+                        if (resp.success) {
+                            _this.getStorage().remove(note);
+                            note.remove();
+                            _this.linker.removeFor(note);
+                        }
+                    });
+                }
+                this.from = null;
+                return;
+            }
+            if (this.from && note && !this.linker.isLinked(this.from, note)) {
+                this.appCommands.link(this.from.getId(), note.getId(), this.currentLayerTag, this.currentBoard.id)
+                    .then(function (resp) {
+                    if (resp.success) {
+                        _this.appBus.link(_this.from.getId(), note.getId());
+                        _this.from = null;
+                    }
+                });
+                return;
+            }
+            if (this.from && note && this.linker.isLinked(this.from, note)) {
+                this.appCommands.unlink(this.from.getId(), note.getId(), this.currentLayerTag)
+                    .then(function (resp) {
+                    if (resp.success) {
+                        _this.appBus.unlink(_this.from, note);
+                        _this.from = null;
+                    }
+                });
+            }
+        };
         Pane.prototype.click = function (coords, e) {
             var _this = this;
             var note = this.storage.getByCoords(coords);
@@ -43651,6 +43769,47 @@ var __values = (this && this.__values) || function(o) {
             _super.prototype.init.call(this, container);
             this._isInited = true;
         };
+        TagsPane.prototype.longTouch = function (coords, e) {
+            var _this = this;
+            var note = (this.storage.getByCoords(coords));
+            if (this.from === null && note) {
+                this.from = note;
+                return;
+            }
+            if (this.from == note) {
+                if (confirm('Удалить?')) {
+                    this.appCommands.deleteTag(note.getId())
+                        .then(function (resp) {
+                        if (resp.success) {
+                            _this.getStorage().remove(note);
+                            note.remove();
+                            _this.linker.removeFor(note);
+                            _this.appBus.updateNavigatonPanel();
+                        }
+                    });
+                }
+            }
+            if (this.from && note && !this.linker.isLinked(this.from, note)) {
+                this.appCommands.linkTags(this.from.getId(), note.getId())
+                    .then(function (resp) {
+                    if (resp.success) {
+                        _this.appBus.link(_this.from.getId(), note.getId());
+                        _this.from = null;
+                        _this.appBus.updateNavigatonPanel();
+                    }
+                });
+            }
+            if (this.from && note && this.linker.isLinked(this.from, note)) {
+                this.appCommands.unlinkTags(this.from.getId(), note.getId())
+                    .then(function (resp) {
+                    if (resp.success) {
+                        _this.appBus.unlink(_this.from, note);
+                        _this.from = null;
+                        _this.appBus.updateNavigatonPanel();
+                    }
+                });
+            }
+        };
         TagsPane.prototype.click = function (coords, e) {
             var _this = this;
             var note = (this.storage.getByCoords(coords));
@@ -43850,6 +44009,15 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __values = (
         BoardsStorage.prototype.setDb = function (db) {
             this.db = db;
         };
+        BoardsStorage.prototype.setLayersStorage = function (storage) {
+            this.layersStorage = storage;
+        };
+        BoardsStorage.prototype.setNotesLinksStorage = function (storage) {
+            this.notesLinksStorage = storage;
+        };
+        BoardsStorage.prototype.setNotesStorage = function (storage) {
+            this.notesStorage = storage;
+        };
         BoardsStorage.prototype.add = function (board) {
             var table = this.db.boards;
             table.add(board);
@@ -43921,6 +44089,13 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __values = (
             };
             reader.readAsText(file);
         };
+        BoardsStorage.prototype.delete = function (id) {
+            this.layersStorage.deleteForBoard(id);
+            this.notesLinksStorage.deleteForBoard(id);
+            this.notesStorage.deleteForBoard(id);
+            var table = this.db.boards;
+            return table.where('id').equals(id).delete();
+        };
         return BoardsStorage;
     }());
     exports.BoardsStorage = BoardsStorage;
@@ -43968,6 +44143,12 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             }
             this.boardsStorage = new BoardsStorage_1.BoardsStorage();
             this.boardsStorage.setDb(this.db);
+            var ls = this.getLayersStorage();
+            this.boardsStorage.setLayersStorage(ls);
+            var nl = this.getNotesLinksStorage();
+            this.boardsStorage.setNotesLinksStorage(nl);
+            var ns = this.getNotesStorage();
+            this.boardsStorage.setNotesStorage(ns);
             return this.boardsStorage;
         };
         Factory.prototype.getLayersStorage = function () {
@@ -43976,6 +44157,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             }
             this.layersStorage = new LayersStorage_1.LayersStorage();
             this.layersStorage.setDb(this.db);
+            var nl = this.getNotesLinksStorage();
+            this.layersStorage.setNotesLinksStorage(nl);
             return this.layersStorage;
         };
         Factory.prototype.getNotesLinksStorage = function () {
@@ -44039,6 +44222,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         LayersStorage.prototype.setDb = function (db) {
             this.db = db;
         };
+        LayersStorage.prototype.setNotesLinksStorage = function (storage) {
+            this.notesLinksStorage = storage;
+        };
         LayersStorage.prototype.add = function (layer) {
             var table = this.db.layers;
             table.add(layer);
@@ -44066,6 +44252,15 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                 result += chars.charAt(Math.floor(Math.random() * chars.length));
             }
             return result;
+        };
+        LayersStorage.prototype.deleteForBoard = function (boardId) {
+            var table = this.db.layers;
+            return table.where('boardId').equals(boardId).delete();
+        };
+        LayersStorage.prototype.delete = function (id) {
+            this.notesLinksStorage.deleteForLayer(id);
+            var table = this.db.layers;
+            return table.where('id').equals(id).delete();
         };
         return LayersStorage;
     }());
@@ -44124,6 +44319,14 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             var table = this.db.notesLinks;
             return table.where('from').equals(from).and(function (link) { return link.to == to; }).and(function (link) { return link.layerId == layerId; }).delete();
         };
+        NotesLinksStorage.prototype.deleteForBoard = function (boardId) {
+            var table = this.db.notesLinks;
+            return table.where('boardId').equals(boardId).delete();
+        };
+        NotesLinksStorage.prototype.deleteForLayer = function (layerId) {
+            var table = this.db.notesLinks;
+            return table.where('layerId').equals(layerId).delete();
+        };
         NotesLinksStorage.prototype.getRandomString = function (length) {
             var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
             var result = '';
@@ -44176,6 +44379,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             this.notesLinksStorage.deleteFor(id);
             var table = this.db.notes;
             return table.where('id').equals(id).delete();
+        };
+        NotesStorage.prototype.deleteForBoard = function (boardId) {
+            var table = this.db.notesLinks;
+            return table.where('boardId').equals(boardId).delete();
         };
         return NotesStorage;
     }());
@@ -44603,6 +44810,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             // https://konvajs.org/docs/sandbox/Multi-touch_Scale_Stage.html
             this.stage.on('touchmove', function (e) {
                 e.evt.preventDefault();
+                if (_this.longPressTimeout) {
+                    clearTimeout(_this.longPressTimeout);
+                    _this.longPressTimeout = null;
+                }
                 var touch1 = e.evt.touches[0];
                 var touch2 = e.evt.touches[1];
                 // we need to restore dragging, if it was cancelled by multi-touch
@@ -44661,6 +44872,26 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             this.stage.on('touchend', function () {
                 lastDist = 0;
                 lastCenter = null;
+                if (_this.longPressTimeout) {
+                    clearTimeout(_this.longPressTimeout);
+                    _this.longPressTimeout = null;
+                }
+            });
+            this.stage.on('touchstart', function (e) {
+                var pos = _this.stage.getPointerPosition();
+                var coords = {
+                    x: (pos.x - _this.stage.x()) / _this.stage.scaleX(),
+                    y: (pos.y - _this.stage.y()) / _this.stage.scaleY(),
+                };
+                var note = _this.storage.getByCoords(coords);
+                if (!note) {
+                    return;
+                }
+                _this.longPressTimeout = setTimeout(function () {
+                    // Длительное нажатие выполнено
+                    navigator.vibrate(200);
+                    _this.longTouch(coords, e);
+                }, 800); // время в миллисекундах, например 800мс
             });
             this.stage.on('wheel', function (e) {
                 // stop default scrolling
@@ -44695,19 +44926,18 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                 ev = 'tap';
             }
             this.stage.on(ev, function (e) {
-                // if (isHandled) return;
-                // isHandled = true;
-                // setTimeout(() => { isHandled = false; }, 200);
                 var pos = _this.stage.getPointerPosition();
                 console.log(_this.stage.x());
                 console.log(_this.stage.scaleX());
-                // let _scaleX = (this.stage.scaleX() == 0) ? 1 : this.stage.scaleX();
-                // let _scaleY = (this.stage.scaleY() == 0) ? 1 : this.stage.scaleY();
                 var coords = {
                     x: (pos.x - _this.stage.x()) / _this.stage.scaleX(),
                     y: (pos.y - _this.stage.y()) / _this.stage.scaleY(),
                 };
                 _this.click(coords, e);
+                if (_this.longPressTimeout) {
+                    clearTimeout(_this.longPressTimeout);
+                    _this.longPressTimeout = null;
+                }
             });
             this.stage.on('dragend', function (e) {
                 var pos = _this.stage.position();

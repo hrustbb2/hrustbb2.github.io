@@ -1,6 +1,7 @@
 import { BoardsStorage } from "../storage/BoardsStorage";
 import { AppBus } from "../bus/AppBus";
 import { TBoard } from "../tree/types/TBoard";
+import { AppComamnds } from "../commands/AppCommands";
 
 export class BoardsPanel {
 
@@ -16,12 +17,18 @@ export class BoardsPanel {
 
     private items: BoardItem[] = [];
 
+    private appCommands: AppComamnds;
+
     public setBoardsStorage(storage: BoardsStorage): void {
         this.boardsStorage = storage;
     }
 
     public setAppBus(appBus: AppBus): void {
         this.appBus = appBus;
+    }
+
+    public setAppCommands(commands: AppComamnds): void {
+        this.appCommands = commands;
     }
 
     public init(container: HTMLElement): void {
@@ -53,6 +60,15 @@ export class BoardsPanel {
                 }
                 self.setActive(true);
             });
+            item.setOnDeleted((self: BoardItem) => {
+                for (let i in this.items) {
+                    if (this.items[i].getData().id == self.getData().id) {
+                        this.items[i].getTemplate().remove();
+                        delete this.items[i];
+                        break;
+                    }
+                }
+            });
             this.items.push(item);
         }
 
@@ -71,6 +87,15 @@ export class BoardsPanel {
                         }
                         self.setActive(true);
                     });
+                    item.setOnDeleted((self: BoardItem) => {
+                        for (let i in this.items) {
+                            if (this.items[i].getData().id == self.getData().id) {
+                                this.items[i].getTemplate().remove();
+                                delete this.items[i];
+                                break;
+                            }
+                        }
+                    });
                     this.items.push(item);
                 }
             })
@@ -87,7 +112,7 @@ export class BoardsPanel {
 
     private createItem(): BoardItem {
         let item = new BoardItem();
-
+        item.setAppCommands(this.appCommands);
         return item;
     }
 
@@ -110,10 +135,18 @@ class BoardItem {
 
     private data: TBoard;
 
+    private appCommands: AppComamnds;
+
     private onClick: (self: BoardItem) => void;
+
+    private onDeleted: (self: BoardItem) => void;
 
     public setOnClick(c: (self: BoardItem) => void): void {
         this.onClick = c;
+    }
+
+    public setOnDeleted(c: (self: BoardItem) => void): void {
+        this.onDeleted = c;
     }
 
     public getTemplate(): HTMLElement {
@@ -122,6 +155,10 @@ class BoardItem {
 
     public getData(): TBoard {
         return this.data;
+    }
+
+    public setAppCommands(commands: AppComamnds): void {
+        this.appCommands = commands;
     }
 
     public constructor() {
@@ -140,6 +177,12 @@ class BoardItem {
     public eventsListen(): void {
         this.template.onclick = () => {
             this.onClick(this);
+        }
+
+        this.deleteBtn.onclick = (e: Event) => {
+            e.stopPropagation();
+            this.appCommands.deleteBoard(this.data.id);
+            this.onDeleted(this);
         }
     }
 

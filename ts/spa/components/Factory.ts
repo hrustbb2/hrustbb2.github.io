@@ -77,6 +77,8 @@ export class Factory {
         bp.setBoardsStorage(boardsStorage);
         let appBus = this.appFactory.getCanvasFactory().getBusFactory().getAppBus();
         bp.setAppBus(<AppBus>appBus);
+        let appCommands = this.appFactory.getCommandsFactory().getAppCommands();
+        bp.setAppCommands(appCommands);
         return bp;
     }
 
