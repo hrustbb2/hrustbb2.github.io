@@ -7,6 +7,7 @@
   "private": true,
   "scripts": {
     "buildJSAdmin": "npx webpack --config ww.conf.js",
+    "buildJSProd": "npx webpack --config prod.conf.js",
     "buildCSSAdmin": "cross-env NODE_ENV=development NODE_OPTIONS=--openssl-legacy-provider webpack --config=admincss.config.js --progress --hide-modules",
     "prod": "cross-env NODE_ENV=production webpack --config=admin.config.js && cross-env NODE_ENV=production webpack --config=admincss.config.js"
   },
