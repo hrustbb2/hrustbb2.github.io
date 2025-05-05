@@ -91,22 +91,24 @@ export abstract class AbstractPane {
 
         let scaleBy = 1.05;
 
-        let lastCenter:any = null;
+        let lastCenter: any = null;
         let lastDist = 0;
         let dragStopped = false;
 
+        Konva.hitOnDragEnabled = true;
+
         // https://konvajs.org/docs/sandbox/Multi-touch_Scale_Stage.html
-        this.stage.on('touchmove', (e)=>{
+        this.stage.on('touchmove', (e) => {
             e.evt.preventDefault();
             const touch1 = e.evt.touches[0];
             const touch2 = e.evt.touches[1];
-          
+
             // we need to restore dragging, if it was cancelled by multi-touch
             if (touch1 && !touch2 && !this.stage.isDragging() && dragStopped) {
                 this.stage.startDrag();
                 dragStopped = false;
             }
-          
+
             if (touch1 && touch2) {
                 // if the stage was under Konva's drag&drop
                 // we need to stop it, and implement our own pan logic with two pointers
@@ -114,7 +116,7 @@ export abstract class AbstractPane {
                     dragStopped = true;
                     this.stage.stopDrag();
                 }
-          
+
                 const p1 = {
                     x: touch1.clientX,
                     y: touch1.clientY,
@@ -123,41 +125,41 @@ export abstract class AbstractPane {
                     x: touch2.clientX,
                     y: touch2.clientY,
                 };
-          
+
                 if (!lastCenter) {
                     lastCenter = this.getCenter(p1, p2);
                     return;
                 }
                 const newCenter = this.getCenter(p1, p2);
-            
+
                 const dist = this.getDistance(p1, p2);
-            
+
                 if (!lastDist) {
                     lastDist = dist;
                 }
-          
+
                 // local coordinates of center point
                 const pointTo = {
                     x: (newCenter.x - this.stage.x()) / this.stage.scaleX(),
                     y: (newCenter.y - this.stage.y()) / this.stage.scaleX(),
                 };
-            
+
                 const scale = this.stage.scaleX() * (dist / lastDist);
-            
+
                 this.stage.scaleX(scale);
                 this.stage.scaleY(scale);
-            
+
                 // calculate new position of the stage
                 const dx = newCenter.x - lastCenter.x;
                 const dy = newCenter.y - lastCenter.y;
-            
+
                 const newPos = {
                     x: newCenter.x - pointTo.x * scale + dx,
                     y: newCenter.y - pointTo.y * scale + dy,
                 };
-          
+
                 this.stage.position(newPos);
-          
+
                 lastDist = dist;
                 lastCenter = newCenter;
 
@@ -167,7 +169,7 @@ export abstract class AbstractPane {
                 }, 500);
             }
         });
-          
+
         this.stage.on('touchend', function () {
             lastDist = 0;
             lastCenter = null;
@@ -211,7 +213,7 @@ export abstract class AbstractPane {
         });
 
         let ev = 'click';
-        if(this.isMobile()){
+        if (this.isMobile()) {
             ev = 'tap';
         }
         this.stage.on(ev, (e) => {
@@ -246,16 +248,16 @@ export abstract class AbstractPane {
         return check;
     };
 
-    private getDistance(p1:any, p2:any) {
+    private getDistance(p1: any, p2: any) {
         return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
     }
 
-    private getCenter(p1:any, p2:any) {
+    private getCenter(p1: any, p2: any) {
         return {
-          x: (p1.x + p2.x) / 2,
-          y: (p1.y + p2.y) / 2,
+            x: (p1.x + p2.x) / 2,
+            y: (p1.y + p2.y) / 2,
         };
-      }
+    }
 
     protected abstract click(coords: TCoordinates, e: any): void;
 

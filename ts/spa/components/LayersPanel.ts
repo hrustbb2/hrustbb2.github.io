@@ -43,8 +43,7 @@ export class LayersPanel {
             });
     }
 
-    public clear(): void
-    {
+    public clear(): void {
         this.labels = [];
         this.labelsContainer.innerHTML = '';
     }
@@ -162,10 +161,12 @@ class Label {
 
     public setActive(active: boolean): void {
         if (active) {
-            this.template.style.backgroundColor = '#cbcbcb';
+            // this.template.style.backgroundColor = '#cbcbcb';
+            this.template.style.fontWeight = 'bold';
             return;
         }
-        this.template.style.removeProperty('background-color');
+        // this.template.style.removeProperty('background-color');
+        this.template.style.removeProperty('font-weight');
     }
 
 }

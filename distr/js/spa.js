@@ -42167,6 +42167,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __values = (
     exports.BoardsPanel = void 0;
     var BoardsPanel = /** @class */ (function () {
         function BoardsPanel() {
+            this.items = [];
         }
         BoardsPanel.prototype.setBoardsStorage = function (storage) {
             this.boardsStorage = storage;
@@ -42184,37 +42185,76 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __values = (
                 if (!title) {
                     return;
                 }
-                _this.boardsStorage.add({
+                var board = {
                     id: 'board_' + _this.getRandomString(32),
                     title: title,
                     scale: 1,
                     x: 0,
                     y: 0,
+                };
+                _this.boardsStorage.add(board);
+                var item = _this.createItem();
+                item.load(board);
+                _this.content.append(item.getTemplate());
+                item.eventsListen();
+                item.setOnClick(function (self) {
+                    var e_1, _a;
+                    _this.appBus.setCurrentBoard(self.getData());
+                    try {
+                        for (var _b = __values(_this.items), _c = _b.next(); !_c.done; _c = _b.next()) {
+                            var b = _c.value;
+                            b.setActive(false);
+                        }
+                    }
+                    catch (e_1_1) { e_1 = { error: e_1_1 }; }
+                    finally {
+                        try {
+                            if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                        }
+                        finally { if (e_1) throw e_1.error; }
+                    }
+                    self.setActive(true);
                 });
+                _this.items.push(item);
             };
+            this.items = [];
             this.boardsStorage.getList()
                 .then(function (resp) {
-                var e_1, _a;
-                var _loop_1 = function (b) {
-                    var div = document.createElement('div');
-                    div.innerText = b.title;
-                    _this.content.append(div);
-                    div.onclick = function () {
-                        _this.appBus.setCurrentBoard(b);
-                    };
-                };
+                var e_2, _a;
                 try {
                     for (var resp_1 = __values(resp), resp_1_1 = resp_1.next(); !resp_1_1.done; resp_1_1 = resp_1.next()) {
                         var b = resp_1_1.value;
-                        _loop_1(b);
+                        var item = _this.createItem();
+                        item.load(b);
+                        _this.content.append(item.getTemplate());
+                        item.eventsListen();
+                        item.setOnClick(function (self) {
+                            var e_3, _a;
+                            _this.appBus.setCurrentBoard(self.getData());
+                            try {
+                                for (var _b = (e_3 = void 0, __values(_this.items)), _c = _b.next(); !_c.done; _c = _b.next()) {
+                                    var b_1 = _c.value;
+                                    b_1.setActive(false);
+                                }
+                            }
+                            catch (e_3_1) { e_3 = { error: e_3_1 }; }
+                            finally {
+                                try {
+                                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                                }
+                                finally { if (e_3) throw e_3.error; }
+                            }
+                            self.setActive(true);
+                        });
+                        _this.items.push(item);
                     }
                 }
-                catch (e_1_1) { e_1 = { error: e_1_1 }; }
+                catch (e_2_1) { e_2 = { error: e_2_1 }; }
                 finally {
                     try {
                         if (resp_1_1 && !resp_1_1.done && (_a = resp_1.return)) _a.call(resp_1);
                     }
-                    finally { if (e_1) throw e_1.error; }
+                    finally { if (e_2) throw e_2.error; }
                 }
             });
         };
@@ -42226,9 +42266,50 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __values = (
             }
             return result;
         };
+        BoardsPanel.prototype.createItem = function () {
+            var item = new BoardItem();
+            return item;
+        };
         return BoardsPanel;
     }());
     exports.BoardsPanel = BoardsPanel;
+    var BoardItem = /** @class */ (function () {
+        function BoardItem() {
+            this.html = "\n        <div class=\"board-item\" style=\"display: flex;\">\n            <div class=\"board-title\"></div>\n            <div class=\"board-delete-btn\" style=\"margin-left: 10px;\">\u00D7</div>\n        </div>\n    ";
+            this.template = document.createElement('div');
+            this.template.innerHTML = this.html.trim();
+            this.template = this.template.firstChild;
+            this.title = this.template.querySelector('.board-title');
+            this.deleteBtn = this.template.querySelector('.board-delete-btn');
+        }
+        BoardItem.prototype.setOnClick = function (c) {
+            this.onClick = c;
+        };
+        BoardItem.prototype.getTemplate = function () {
+            return this.template;
+        };
+        BoardItem.prototype.getData = function () {
+            return this.data;
+        };
+        BoardItem.prototype.load = function (data) {
+            this.data = data;
+            this.title.innerText = data.title;
+        };
+        BoardItem.prototype.eventsListen = function () {
+            var _this = this;
+            this.template.onclick = function () {
+                _this.onClick(_this);
+            };
+        };
+        BoardItem.prototype.setActive = function (isActive) {
+            if (isActive) {
+                this.template.style.fontWeight = 'bold';
+                return;
+            }
+            this.template.style.removeProperty('font-weight');
+        };
+        return BoardItem;
+    }());
 }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 		__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
@@ -42457,10 +42538,12 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         };
         Label.prototype.setActive = function (active) {
             if (active) {
-                this.template.style.backgroundColor = '#cbcbcb';
+                // this.template.style.backgroundColor = '#cbcbcb';
+                this.template.style.fontWeight = 'bold';
                 return;
             }
-            this.template.style.removeProperty('background-color');
+            // this.template.style.removeProperty('background-color');
+            this.template.style.removeProperty('font-weight');
         };
         return Label;
     }());
@@ -44516,6 +44599,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             var lastCenter = null;
             var lastDist = 0;
             var dragStopped = false;
+            konva_1.default.hitOnDragEnabled = true;
             // https://konvajs.org/docs/sandbox/Multi-touch_Scale_Stage.html
             this.stage.on('touchmove', function (e) {
                 e.evt.preventDefault();

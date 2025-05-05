@@ -1,5 +1,6 @@
 import { BoardsStorage } from "../storage/BoardsStorage";
 import { AppBus } from "../bus/AppBus";
+import { TBoard } from "../tree/types/TBoard";
 
 export class BoardsPanel {
 
@@ -12,6 +13,8 @@ export class BoardsPanel {
     private boardsStorage: BoardsStorage;
 
     private appBus: AppBus;
+
+    private items: BoardItem[] = [];
 
     public setBoardsStorage(storage: BoardsStorage): void {
         this.boardsStorage = storage;
@@ -31,24 +34,44 @@ export class BoardsPanel {
             if (!title) {
                 return;
             }
-            this.boardsStorage.add({
+            let board = {
                 id: 'board_' + this.getRandomString(32),
                 title: title,
                 scale: 1,
                 x: 0,
                 y: 0,
+            }
+            this.boardsStorage.add(board);
+            let item = this.createItem();
+            item.load(board);
+            this.content.append(item.getTemplate());
+            item.eventsListen();
+            item.setOnClick((self: BoardItem) => {
+                this.appBus.setCurrentBoard(self.getData());
+                for (let b of this.items) {
+                    b.setActive(false);
+                }
+                self.setActive(true);
             });
+            this.items.push(item);
         }
 
+        this.items = [];
         this.boardsStorage.getList()
             .then((resp: any) => {
                 for (let b of resp) {
-                    let div = document.createElement('div');
-                    div.innerText = b.title;
-                    this.content.append(div);
-                    div.onclick = () => {
-                        this.appBus.setCurrentBoard(b);
-                    }
+                    let item = this.createItem();
+                    item.load(b);
+                    this.content.append(item.getTemplate());
+                    item.eventsListen();
+                    item.setOnClick((self: BoardItem) => {
+                        this.appBus.setCurrentBoard(self.getData());
+                        for (let b of this.items) {
+                            b.setActive(false);
+                        }
+                        self.setActive(true);
+                    });
+                    this.items.push(item);
                 }
             })
     }
@@ -62,4 +85,69 @@ export class BoardsPanel {
         return result;
     }
 
+    private createItem(): BoardItem {
+        let item = new BoardItem();
+
+        return item;
+    }
+
+}
+
+class BoardItem {
+
+    private html: string = `
+        <div class="board-item" style="display: flex;">
+            <div class="board-title"></div>
+            <div class="board-delete-btn" style="margin-left: 10px;">×</div>
+        </div>
+    `;
+
+    private template: HTMLElement;
+
+    private title: HTMLElement;
+
+    private deleteBtn: HTMLElement;
+
+    private data: TBoard;
+
+    private onClick: (self: BoardItem) => void;
+
+    public setOnClick(c: (self: BoardItem) => void): void {
+        this.onClick = c;
+    }
+
+    public getTemplate(): HTMLElement {
+        return this.template;
+    }
+
+    public getData(): TBoard {
+        return this.data;
+    }
+
+    public constructor() {
+        this.template = document.createElement('div');
+        this.template.innerHTML = this.html.trim();
+        this.template = <HTMLElement>this.template.firstChild;
+        this.title = this.template.querySelector('.board-title');
+        this.deleteBtn = this.template.querySelector('.board-delete-btn');
+    }
+
+    public load(data: TBoard): void {
+        this.data = data;
+        this.title.innerText = data.title;
+    }
+
+    public eventsListen(): void {
+        this.template.onclick = () => {
+            this.onClick(this);
+        }
+    }
+
+    public setActive(isActive: boolean): void {
+        if (isActive) {
+            this.template.style.fontWeight = 'bold';
+            return;
+        }
+        this.template.style.removeProperty('font-weight');
+    }
 }
