@@ -254,3 +254,36 @@ h2 {
 .form-group textarea.large-textarea {
     height: 150px;
 }
+
+.file-upload {
+    position: relative;
+    display: inline-block;
+}
+
+/* Стили для скрытого input */
+.file-upload input[type="file"] {
+    display: none;
+}
+
+/* Стиль кнопки */
+.btn {
+    display: inline-block;
+    padding: 12px 24px;
+    background-color: #4CAF50;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+    background-color: #45a049;
+}
+
+/* Стиль для отображения выбранного файла */
+.file-name {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #333;
+}

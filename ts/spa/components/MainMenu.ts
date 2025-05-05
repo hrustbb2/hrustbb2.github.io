@@ -2,6 +2,7 @@ import { NavigationPanel } from "./NavigationPanel";
 import { LayersPanel } from "./LayersPanel";
 import { BoardsPanel } from "./BoardsPanel";
 import { AppBus } from "../bus/AppBus";
+import { BoardsStorage } from "../storage/BoardsStorage";
 
 class MenuItem {
 
@@ -42,6 +43,10 @@ export class MainMenu {
 
     private container: HTMLElement;
 
+    private exportBtn: HTMLElement;
+
+    private importFileInput: HTMLInputElement;
+
     private navigationPanel: NavigationPanel;
 
     private layersPanel: LayersPanel;
@@ -53,6 +58,8 @@ export class MainMenu {
     private tagsBtn: HTMLElement;
 
     private appBus: AppBus;
+
+    private boardsStorage: BoardsStorage;
 
     public setNavigationPanel(panel: NavigationPanel): void {
         this.navigationPanel = panel;
@@ -82,6 +89,10 @@ export class MainMenu {
         this.appBus = bus;
     }
 
+    public setBoardsStorage(storage: BoardsStorage): void {
+        this.boardsStorage = storage;
+    }
+
     public init(container: HTMLElement): void {
         this.container = container;
 
@@ -108,6 +119,17 @@ export class MainMenu {
         this.tagsBtn.onclick = (e: Event) => {
             e.stopPropagation();
             this.appBus.showTagsPanel();
+        }
+
+        this.exportBtn = this.container.querySelector('.js-export-btn');
+        this.exportBtn.onclick = () => {
+            this.boardsStorage.export();
+        }
+        this.importFileInput = this.container.querySelector('.js-import-fi');
+        this.importFileInput.onchange = () => {
+            if (this.importFileInput.files.length > 0) {
+                this.boardsStorage.import(this.importFileInput.files[0])
+            }
         }
     }
 

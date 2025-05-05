@@ -3,6 +3,7 @@ import { TBoard } from "../tree/types/TBoard";
 import { Pane } from "./Pane";
 import { TagsPane } from "./TagsPane";
 import { AppComamnds } from "../commands/AppCommands";
+import { BoardsStorage } from "../storage/BoardsStorage";
 import { AppBus } from "../bus/AppBus";
 import { Rectangle } from "../Shapes/Rectangle";
 
@@ -62,8 +63,7 @@ export class AppContainer {
             })
     }
 
-    public updateNavigatonPanel(): void
-    {
+    public updateNavigatonPanel(): void {
         this.appCommands.getNotes(this.currentBoard.id)
             .then((resp: any) => {
                 if (resp.success) {
@@ -117,7 +117,6 @@ export class AppContainer {
         this.pane.init(<HTMLDivElement>pane);
 
         let tagsPane = this.container.querySelector('.js-tags');
-
     }
 
     public updateNode(data: any): void {

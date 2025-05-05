@@ -50,6 +50,8 @@ export class Factory {
         menu.setBoardsPanel(bp);
         let appBus = this.appFactory.getCanvasFactory().getBusFactory().getAppBus();
         menu.setAppBus(<AppBus>appBus);
+        let bs = this.appFactory.getStorageFactory().getBoardsStorage();
+        menu.setBoardsStorage(bs);
         return menu;
     }
 

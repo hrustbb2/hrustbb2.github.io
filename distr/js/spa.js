@@ -23722,7 +23722,7 @@ var toolbarBuiltInButtons = {
         action: toggleFullScreen,
         className: iconClassMap['fullscreen'],
         noDisable: true,
-        noMobile: false,
+        noMobile: true,
         title: 'Toggle Fullscreen',
         default: true,
     },
@@ -24733,7 +24733,7 @@ EasyMDE.prototype.createToolbar = function (items) {
 
         // Fullscreen does not work well on mobile devices (even tablets)
         // In the future, hopefully this can be resolved
-        if ((items[i].name == 'side-by-side') && isMobile())
+        if ((items[i].name == 'fullscreen' || items[i].name == 'side-by-side') && isMobile())
             continue;
 
 
@@ -42278,6 +42278,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             menu.setBoardsPanel(bp);
             var appBus = this.appFactory.getCanvasFactory().getBusFactory().getAppBus();
             menu.setAppBus(appBus);
+            var bs = this.appFactory.getStorageFactory().getBoardsStorage();
+            menu.setBoardsStorage(bs);
             return menu;
         };
         Factory.prototype.createNavigationPanel = function () {
@@ -42532,6 +42534,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         MainMenu.prototype.setAppBus = function (bus) {
             this.appBus = bus;
         };
+        MainMenu.prototype.setBoardsStorage = function (storage) {
+            this.boardsStorage = storage;
+        };
         MainMenu.prototype.init = function (container) {
             var _this = this;
             this.container = container;
@@ -42554,6 +42559,16 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             this.tagsBtn.onclick = function (e) {
                 e.stopPropagation();
                 _this.appBus.showTagsPanel();
+            };
+            this.exportBtn = this.container.querySelector('.js-export-btn');
+            this.exportBtn.onclick = function () {
+                _this.boardsStorage.export();
+            };
+            this.importFileInput = this.container.querySelector('.js-import-fi');
+            this.importFileInput.onchange = function () {
+                if (_this.importFileInput.files.length > 0) {
+                    _this.boardsStorage.import(_this.importFileInput.files[0]);
+                }
             };
         };
         MainMenu.prototype.toggleOpen = function (isOpen) {
