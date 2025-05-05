@@ -102,13 +102,14 @@ export class NodeModal {
                         id: this.data.id,
                         preview: this.previewInput.value,
                         content: this.easyMDE.value(),
-                        tags: resp.tags,
+                        tags: resp.note.tags,
                     });
                     this.easyMDE.togglePreview();
                     if (!this.easyMDE.preview) {
                         this.easyMDE.togglePreview();
                     }
                     this.previewContainer.classList.toggle('hide', true);
+                    this.appBus.updateNavigatonPanel();
                 }
             });
         }
@@ -163,6 +164,8 @@ export class NodeModal {
                         }
                         this.previewContainer.classList.toggle('hide', true);
                         this.container.classList.toggle('hide', true);
+
+                        this.appBus.updateNavigatonPanel();
                     }
                 });
 
@@ -188,6 +191,9 @@ export class NodeModal {
             this.tagsModal.show(this.tagsLinks)
                 .then((tag: any) => {
                     this.appendTag(tag.id, tag.title);
+                    if (!this.data.tags) {
+                        this.data.tags = [];
+                    }
                     this.data.tags.push(tag);
                 });
         }

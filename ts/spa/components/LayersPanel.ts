@@ -184,6 +184,9 @@ class Label {
             this.onCheckboxClick(this);
         }
         this.deleteBtn.onclick = (e: Event) => {
+            if (!confirm('Delete Layer?')) {
+                return;
+            }
             e.stopPropagation();
             this.appCommands.deleteLayer(this.data.id);
             this.onDeleted(this);

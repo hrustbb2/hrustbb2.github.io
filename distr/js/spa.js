@@ -24733,7 +24733,7 @@ EasyMDE.prototype.createToolbar = function (items) {
 
         // Fullscreen does not work well on mobile devices (even tablets)
         // In the future, hopefully this can be resolved
-        if ((items[i].name == 'fullscreen' || items[i].name == 'side-by-side') && isMobile())
+        if ((items[i].name == 'side-by-side') && isMobile())
             continue;
 
 
@@ -42347,6 +42347,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __values = (
                 _this.onClick(_this);
             };
             this.deleteBtn.onclick = function (e) {
+                if (!confirm('Delete Board?')) {
+                    return;
+                }
                 e.stopPropagation();
                 _this.appCommands.deleteBoard(_this.data.id);
                 _this.onDeleted(_this);
@@ -42602,6 +42605,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                 _this.onCheckboxClick(_this);
             };
             this.deleteBtn.onclick = function (e) {
+                if (!confirm('Delete Layer?')) {
+                    return;
+                }
                 e.stopPropagation();
                 _this.appCommands.deleteLayer(_this.data.id);
                 _this.onDeleted(_this);
@@ -43049,13 +43055,14 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
                             id: _this.data.id,
                             preview: _this.previewInput.value,
                             content: _this.easyMDE.value(),
-                            tags: resp.tags,
+                            tags: resp.note.tags,
                         });
                         _this.easyMDE.togglePreview();
                         if (!_this.easyMDE.preview) {
                             _this.easyMDE.togglePreview();
                         }
                         _this.previewContainer.classList.toggle('hide', true);
+                        _this.appBus.updateNavigatonPanel();
                     }
                 });
             };
@@ -43109,6 +43116,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
                         }
                         _this.previewContainer.classList.toggle('hide', true);
                         _this.container.classList.toggle('hide', true);
+                        _this.appBus.updateNavigatonPanel();
                     }
                 });
                 _this.appBus.updateNavigatonPanel();
@@ -43131,6 +43139,9 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
                 _this.tagsModal.show(_this.tagsLinks)
                     .then(function (tag) {
                     _this.appendTag(tag.id, tag.title);
+                    if (!_this.data.tags) {
+                        _this.data.tags = [];
+                    }
                     _this.data.tags.push(tag);
                 });
             };
@@ -43975,6 +43986,41 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         var appContainer = document.querySelector('.js-app-contaier');
         var factory = new Factory_1.Factory();
         factory.init(appContainer);
+        // Регистрация service worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/distr/js/sw.js')
+                .then(function (reg) { return console.log('Service Worker registered!', reg); })
+                .catch(function (err) { return console.error('Service Worker registration failed:', err); });
+            // window.addEventListener('beforeinstallprompt', (e) => {
+            //     e.preventDefault();
+            //     const deferredPrompt = e;
+            //     const installButton = document.createElement('button');
+            //     installButton.textContent = 'Install App';
+            //     installButton.style.position = 'fixed';
+            //     installButton.style.top = '10px';
+            //     installButton.style.left = '50%';
+            //     installButton.style.transform = 'translateX(-50%)';
+            //     installButton.style.zIndex = '9999';
+            //     installButton.style.padding = '10px 20px';
+            //     installButton.classList.add('btn-grad');
+            //     installButton.style.color = 'white';
+            //     installButton.style.border = 'none';
+            //     installButton.style.borderRadius = '5px';
+            //     installButton.style.cursor = 'pointer';
+            //     installButton.addEventListener('click', () => {
+            //         (<any>deferredPrompt).prompt();
+            //         (<any>deferredPrompt).userChoice.then((choiceResult: any) => {
+            //             if (choiceResult.outcome === 'accepted') {
+            //                 console.log('App installed');
+            //             } else {
+            //                 console.log('App installation declined');
+            //             }
+            //             installButton.style.display = 'none';
+            //         });
+            //     });
+            //     document.body.appendChild(installButton);
+            // });
+        }
     });
 }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 		__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));

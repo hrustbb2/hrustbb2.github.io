@@ -1,10 +1,10 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "./src/main.ts":
-/*!*********************!*\
-  !*** ./src/main.ts ***!
-  \*********************/
+/***/ "./spa/sw.ts":
+/*!*******************!*\
+  !*** ./spa/sw.ts ***!
+  \*******************/
 /***/ (function() {
 
 // const CACHE_NAME = 'my-pwa-cache-v1';
@@ -71,7 +71,7 @@ function hndlEventInstall(evt) {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        files = ['/', '/index.html', '/distr/js/script.js', '/distr/js/service-worker.js', '/manifest.json', '/icon-180x180.png'];
+                        files = ['/', '/index.html', '/distr/js/spa.js', '/distr/js/sw.js', '/manifest.json', '/icon-180x180.png'];
                         return [4 /*yield*/, caches.open(CACHE_STATIC)];
                     case 1:
                         cacheStat = _a.sent();
@@ -131,8 +131,8 @@ self.addEventListener('fetch', hndlEventFetch);
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module is referenced by other modules so it can't be inlined
 /******/ 	var __webpack_exports__ = {};
-/******/ 	__webpack_modules__["./src/main.ts"]();
+/******/ 	__webpack_modules__["./spa/sw.ts"]();
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=service-worker.js.map
+//# sourceMappingURL=sw.js.map

@@ -20,12 +20,12 @@
 
 const CACHE_STATIC = 'static-cache-v1';
 
-function hndlEventInstall(evt:any) {
+function hndlEventInstall(evt: any) {
     /**
      * @returns {Promise<void>}
      */
     async function cacheStaticFiles() {
-        const files = ['/', '/index.html', '/distr/js/script.js', '/distr/js/service-worker.js', '/manifest.json', '/icon-180x180.png'];
+        const files = ['/', '/index.html', '/distr/js/spa.js', '/distr/js/sw.js', '/manifest.json', '/icon-180x180.png'];
         const cacheStat = await caches.open(CACHE_STATIC);
         await Promise.all(
             files.map(function (url) {
@@ -40,7 +40,7 @@ function hndlEventInstall(evt:any) {
     evt.waitUntil(cacheStaticFiles());
 }
 
-function hndlEventFetch(evt:any) {
+function hndlEventFetch(evt: any) {
     async function getFromCache() {
         const cache = await self.caches.open(CACHE_STATIC);
         const cachedResponse = await cache.match(evt.request);

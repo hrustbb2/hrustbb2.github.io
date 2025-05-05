@@ -4,14 +4,11 @@ const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = {
     entry: {
-        'script': [
-            './src/script.ts'
-        ],
-        'service-worker': [
-            './src/main.ts'
-        ],
         'spa': [
             './spa/main.ts'
+        ],
+        'sw': [
+            './spa/sw.ts'
         ],
     },
     output: {

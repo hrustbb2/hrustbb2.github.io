@@ -180,6 +180,9 @@ class BoardItem {
         }
 
         this.deleteBtn.onclick = (e: Event) => {
+            if (!confirm('Delete Board?')) {
+                return;
+            }
             e.stopPropagation();
             this.appCommands.deleteBoard(this.data.id);
             this.onDeleted(this);
