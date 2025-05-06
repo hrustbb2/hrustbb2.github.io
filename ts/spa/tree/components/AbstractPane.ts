@@ -170,9 +170,12 @@ export abstract class AbstractPane {
                 lastDist = dist;
                 lastCenter = newCenter;
 
-                clearTimeout(this.timeout);
+                if (this.timeout) {
+                    clearTimeout(this.timeout);
+                }
                 this.timeout = setTimeout(() => {
                     this.update({ scale: scale, x: newPos.x, y: newPos.y });
+                    this.timeout = null;
                 }, 500);
             }
         });
