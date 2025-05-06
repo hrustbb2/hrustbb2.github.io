@@ -82,6 +82,7 @@ export class Pane extends AbstractPane {
                         this.from = null;
                     }
                 });
+            this.from = null;
             return;
         }
         if (this.from && note && this.linker.isLinked(this.from, note)) {
@@ -92,6 +93,8 @@ export class Pane extends AbstractPane {
                         this.from = null;
                     }
                 });
+            this.from = null;
+            return;
         }
     }
 

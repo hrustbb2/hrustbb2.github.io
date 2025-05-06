@@ -58,6 +58,8 @@ export class TagsPane extends AbstractPane {
                         }
                     })
             }
+            this.from = null;
+            return;
         }
         if (this.from && note && !this.linker.isLinked(this.from, note)) {
             this.appCommands.linkTags(this.from.getId(), note.getId())
@@ -68,6 +70,8 @@ export class TagsPane extends AbstractPane {
                         (<AppBus>this.appBus).updateNavigatonPanel();
                     }
                 });
+            this.from = null;
+            return;
         }
         if (this.from && note && this.linker.isLinked(this.from, note)) {
             this.appCommands.unlinkTags(this.from.getId(), note.getId())
@@ -78,6 +82,8 @@ export class TagsPane extends AbstractPane {
                         (<AppBus>this.appBus).updateNavigatonPanel();
                     }
                 });
+            this.from = null;
+            return;
         }
     }
 
