@@ -175,10 +175,15 @@ export class AppComamnds {
 
     public link(from: string, to: string, layerId: string, boardId: string): Promise<any> {
         return this.notesLinksStorage.link(from, to, layerId, boardId)
-            .then(() => {
+            .then((resp: any) => {
                 return Promise.resolve({
                     success: true,
                     errors: [],
+                    link: {
+                        id: resp,
+                        from: from,
+                        to: to,
+                    },
                 });
             })
 

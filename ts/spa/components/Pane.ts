@@ -78,7 +78,9 @@ export class Pane extends AbstractPane {
             this.appCommands.link(this.from.getId(), note.getId(), this.currentLayerTag, this.currentBoard.id)
                 .then((resp: any) => {
                     if (resp.success) {
-                        this.appBus.link(this.from.getId(), note.getId());
+                        let fromId = resp.link.from;
+                        let toId = resp.link.to;
+                        this.appBus.link(fromId, toId);
                         this.from = null;
                     }
                 });
@@ -123,7 +125,9 @@ export class Pane extends AbstractPane {
                 this.appCommands.link(this.from.getId(), note.getId(), this.currentLayerTag, this.currentBoard.id)
                     .then((resp: any) => {
                         if (resp.success) {
-                            this.appBus.link(this.from.getId(), note.getId());
+                            let fromId = resp.link.from;
+                            let toId = resp.link.to;
+                            this.appBus.link(fromId, toId);
                             this.from = null;
                         }
                     });
