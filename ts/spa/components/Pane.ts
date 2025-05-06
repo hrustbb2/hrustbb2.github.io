@@ -213,6 +213,9 @@ export class Pane extends AbstractPane {
             let from = this.storage.getById(link.from);
             let to = this.storage.getById(link.to);
             let layerId = link.layerId;
+            if (!from || !to || !layerId) {
+                continue;
+            }
             this.linker.linkShapes(from, to, layerId);
         }
         this.linker.drawLines();
