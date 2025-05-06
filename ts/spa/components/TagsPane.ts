@@ -65,7 +65,9 @@ export class TagsPane extends AbstractPane {
             this.appCommands.linkTags(this.from.getId(), note.getId())
                 .then((resp: any) => {
                     if (resp.success) {
-                        this.appBus.link(this.from.getId(), note.getId());
+                        let fromId = resp.link.from;
+                        let toId = resp.link.to;
+                        this.appBus.link(fromId, toId);
                         this.from = null;
                         (<AppBus>this.appBus).updateNavigatonPanel();
                     }
