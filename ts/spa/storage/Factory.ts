@@ -37,7 +37,7 @@ export class Factory {
             boards: 'id,title,scale,x,y',
             layers: 'id,boardId,name',
             notesLinks: 'id,boardId,layerId,from,to',
-            notes: 'id,boardId,x,y,preview,content,isCrypted,createdAt,updatedAt',
+            notes: 'id,boardId,x,y,preview,content,isCrypted,tags,createdAt,updatedAt',
             tagsLinks: 'id,from,to',
             tags: 'id,x,y,title',
         });
