@@ -134,6 +134,7 @@ export class NodeModal {
                     let ciphertext = d.ciphertext;
                     let iv = d.iv;
                     this.data.content = iv + ':' + ciphertext;
+                    this.data.tags = this.data.tags || [];
                     return this.appCommands.updateNote({
                         id: this.data.id,
                         preview: this.previewInput.value,
@@ -144,7 +145,7 @@ export class NodeModal {
                 })
                 .then((resp: any) => {
                     if (resp.success) {
-                        let tagsIds = Object.values(resp.tags).map((tag: any) => tag.id);
+                        let tagsIds = Object.values(resp.note.tags).map((tag: any) => tag.id);
                         this.data.tags = Object.values(this.data.tags || {}).filter((tag: any) => {
                             if (!tag.id) {
                                 return true;

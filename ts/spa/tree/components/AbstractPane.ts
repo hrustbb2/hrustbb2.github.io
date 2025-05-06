@@ -340,7 +340,9 @@ export abstract class AbstractPane {
     public clear(): void {
         this.stage.clear();
         this.layer.clear();
+        this.layer.children = [];
         this.linesLayer.clear();
+        this.linesLayer.children = [];
         this.storage.clear();
         this.linker.clear();
     }
