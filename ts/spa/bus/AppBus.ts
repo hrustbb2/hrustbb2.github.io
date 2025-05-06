@@ -80,8 +80,12 @@ export class AppBus extends Base {
         this.componentsFactory2.getAppContainer().showNotesPanel();
     }
 
-    public updateNavigatonPanel(): void
-    {
+    public updateNavigatonPanel(): void {
         this.componentsFactory2.getAppContainer().updateNavigatonPanel();
+    }
+
+    public toggleMenu(toggle: boolean): void {
+        let menu = this.componentsFactory2.getAppContainer().getMainMenu();
+        menu.toggleOpen(toggle);
     }
 }

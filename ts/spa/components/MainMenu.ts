@@ -114,11 +114,17 @@ export class MainMenu {
         this.notesBtn.onclick = (e: Event) => {
             e.stopPropagation();
             this.appBus.showNotesPanel();
+            if (window.innerWidth < 500) {
+                this.toggleOpen(false);
+            }
         }
         this.tagsBtn = this.container.querySelector('.js-tags-btn');
         this.tagsBtn.onclick = (e: Event) => {
             e.stopPropagation();
             this.appBus.showTagsPanel();
+            if (window.innerWidth < 500) {
+                this.toggleOpen(false);
+            }
         }
 
         this.exportBtn = this.container.querySelector('.js-export-btn');

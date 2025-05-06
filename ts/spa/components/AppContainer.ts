@@ -33,6 +33,10 @@ export class AppContainer {
         this.mainMenu = menu;
     }
 
+    public getMainMenu(): MainMenu {
+        return this.mainMenu;
+    }
+
     public setCurrentBoard(board: TBoard): void {
         this.currentBoard = board;
         this.mainMenu.getLayersPanel().clear();

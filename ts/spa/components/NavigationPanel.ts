@@ -191,6 +191,9 @@ class NoteElement {
         this.template.onclick = (e: Event) => {
             e.stopPropagation();
             this.appBus.highligtNote(this.data.id);
+            if (window.innerWidth < 500) {
+                this.appBus.toggleMenu(false);
+            }
         }
     }
 
