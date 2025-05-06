@@ -138,7 +138,7 @@ export class AppComamnds {
                 return Promise.resolve({
                     success: true,
                     errors: [],
-                    board: resp,
+                    board: resp[0] || null,
                 });
             });
 

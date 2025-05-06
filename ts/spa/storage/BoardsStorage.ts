@@ -82,7 +82,7 @@ export class BoardsStorage {
                     let table = r.tableName;
                     if (table == 'notes') {
                         for (let i in r.rows) {
-                            let rr = r.rows[i]['$'];
+                            let rr = r.rows[i];
                             delete rr['$types'];
                             (<any>this.db)[table].add({
                                 id: rr.id,

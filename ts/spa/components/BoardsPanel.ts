@@ -81,11 +81,14 @@ export class BoardsPanel {
                     this.content.append(item.getTemplate());
                     item.eventsListen();
                     item.setOnClick((self: BoardItem) => {
-                        this.appBus.setCurrentBoard(self.getData());
-                        for (let b of this.items) {
-                            b.setActive(false);
-                        }
-                        self.setActive(true);
+                        this.appCommands.getBoard(self.getData().id)
+                            .then((resp:any)=>{
+                                this.appBus.setCurrentBoard(resp.board);
+                                for (let b of this.items) {
+                                    b.setActive(false);
+                                }
+                                self.setActive(true);
+                            });
                     });
                     item.setOnDeleted((self: BoardItem) => {
                         for (let i in this.items) {
