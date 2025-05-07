@@ -58,6 +58,8 @@ export class Factory {
         this.boardsStorage.setNotesLinksStorage(nl);
         let ns = this.getNotesStorage();
         this.boardsStorage.setNotesStorage(ns);
+        let ts = this.getTagsStorage();
+        this.boardsStorage.setTagsStorage(ts);
         return this.boardsStorage;
     }
 

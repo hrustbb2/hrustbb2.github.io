@@ -116,6 +116,7 @@ export class BoardsPanel {
     private createItem(): BoardItem {
         let item = new BoardItem();
         item.setAppCommands(this.appCommands);
+        item.setBoardsStorage(this.boardsStorage);
         return item;
     }
 
@@ -127,6 +128,7 @@ class BoardItem {
         <div class="board-item" style="display: flex;">
             <div class="board-title"></div>
             <div class="board-delete-btn" style="margin-left: 10px;">×</div>
+            <div class="board-export-btn" style="margin-left: 10px;">e</div>
         </div>
     `;
 
@@ -136,9 +138,13 @@ class BoardItem {
 
     private deleteBtn: HTMLElement;
 
+    private exportBtn: HTMLElement;
+
     private data: TBoard;
 
     private appCommands: AppComamnds;
+
+    private boardsStorage: BoardsStorage;
 
     private onClick: (self: BoardItem) => void;
 
@@ -150,6 +156,10 @@ class BoardItem {
 
     public setOnDeleted(c: (self: BoardItem) => void): void {
         this.onDeleted = c;
+    }
+
+    public setBoardsStorage(storage: BoardsStorage): void {
+        this.boardsStorage = storage;
     }
 
     public getTemplate(): HTMLElement {
@@ -170,6 +180,7 @@ class BoardItem {
         this.template = <HTMLElement>this.template.firstChild;
         this.title = this.template.querySelector('.board-title');
         this.deleteBtn = this.template.querySelector('.board-delete-btn');
+        this.exportBtn = this.template.querySelector('.board-export-btn');
     }
 
     public load(data: TBoard): void {
@@ -189,6 +200,11 @@ class BoardItem {
             e.stopPropagation();
             this.appCommands.deleteBoard(this.data.id);
             this.onDeleted(this);
+        }
+
+        this.exportBtn.onclick = (e: Event) => {
+            e.stopPropagation();
+            this.boardsStorage.exportBoard(this.data.id);
         }
     }
 

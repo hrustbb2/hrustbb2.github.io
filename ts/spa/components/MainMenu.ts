@@ -134,7 +134,7 @@ export class MainMenu {
         this.importFileInput = this.container.querySelector('.js-import-fi');
         this.importFileInput.onchange = () => {
             if (this.importFileInput.files.length > 0) {
-                this.boardsStorage.import(this.importFileInput.files[0])
+                this.boardsStorage.importBoard(this.importFileInput.files[0])
             }
         }
     }

@@ -4,6 +4,8 @@ import { TBoard } from '../tree/types/TBoard';
 import { LayersStorage } from './LayersStorage';
 import { NotesLinksStorage } from './NotesLinksStorage';
 import { NotesStorage } from './NotesStorage';
+import { TagsStorage } from './TagsStorage';
+import { TagsLinksStorage } from './TagsLinksStorage';
 
 export class BoardsStorage {
 
@@ -14,6 +16,10 @@ export class BoardsStorage {
     private notesLinksStorage: NotesLinksStorage;
 
     private notesStorage: NotesStorage;
+
+    private tagsStorage: TagsStorage;
+
+    private tagsLinksStorage: TagsLinksStorage;
 
     public setDb(db: Dexie): void {
         this.db = db;
@@ -29,6 +35,16 @@ export class BoardsStorage {
 
     public setNotesStorage(storage: NotesStorage): void {
         this.notesStorage = storage;
+    }
+
+    public setTagsStorage(storage:TagsStorage): void
+    {
+        this.tagsStorage = storage;
+    }
+
+    public setTagsLinksStorage(storage:TagsLinksStorage): void
+    {
+        this.tagsLinksStorage = storage;
     }
 
     public add(board: TBoard): void {
@@ -49,6 +65,86 @@ export class BoardsStorage {
     public update(board: TBoard): Promise<any> {
         let table: Table = (<any>this.db).boards;
         return table.update(board.id, board);
+    }
+
+    public async exportBoard(boardId:string): Promise<any>
+    {
+        let boardData = await this.getById(boardId);
+        boardData = boardData[0];
+        let layers = await this.layersStorage.getList(boardId);
+        let nodes = await this.notesStorage.getNotes(boardId);
+        let notesLinks = await this.notesLinksStorage.getList(boardId);
+        let tags:any = {};
+        let allTags = await this.tagsStorage.getTagsWithLinks();
+        for(let note of nodes){
+            let noteTags = note.tags || [];
+            for(let tag of noteTags){
+                tags[tag.id] = tag;
+            }
+        }
+
+        let data = {
+            board: boardData,
+            layers: layers,
+            notes: nodes,
+            notesLinks: notesLinks,
+            tags: tags,
+        }
+        let jsonString = JSON.stringify(data);
+        const blob = new Blob([jsonString], { type: 'application/json' });
+        const file = new File([blob], boardData.title + '-database-export.json', { type: 'application/json' });
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            navigator.share({
+              files: [file],
+              title: 'Поделиться файлом',
+              text: 'Вот мой файл для вас'
+            }).then(() => {
+              console.log('Успешно поделились файлом');
+            }).catch((error) => {
+              console.error('Ошибка при обмене файлом', error);
+            });
+        } else {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = boardData.title + '-database-export.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+    }
+
+    public async importBoard(file: File): Promise<any> {
+        const reader = new FileReader();
+        reader.onload = (e: any) => {
+            try {
+                const jsonData = JSON.parse(e.target.result);
+                this.add(jsonData.board);
+                for(let i in jsonData.layers){
+                    this.layersStorage.add(jsonData.layers[i]);
+                }
+                for(let i in jsonData.notes){
+                    this.notesStorage.createNote(jsonData.notes[i]);
+                }
+                for(let i in jsonData.notesLinks){
+                    this.notesLinksStorage.add(jsonData.notesLinks[i]);
+                }
+                let y = 10;
+                for(let i in jsonData.tags){
+                    this.tagsStorage.createTag({
+                        id: jsonData.tags[i].id,
+                        x: 10,
+                        y: y,
+                        title: jsonData.tags[i].title,
+                    });
+                    y = y + 80;
+                }
+            }catch (err) {
+                console.error('Некорректный формат файла:', err);
+            }
+        }
+        reader.readAsText(file);
     }
 
     public export(): void {
