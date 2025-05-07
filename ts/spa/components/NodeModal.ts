@@ -156,7 +156,7 @@ export class NodeModal {
                             id: this.data.id,
                             preview: this.previewInput.value,
                             content: this.data.content,
-                            tags: resp.tags,
+                            tags: resp.note.tags,
                             is_crypted: this.data.is_crypted
                         });
                         this.easyMDE.togglePreview();
