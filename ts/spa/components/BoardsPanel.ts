@@ -128,7 +128,7 @@ class BoardItem {
         <div class="board-item" style="display: flex;">
             <div class="board-title"></div>
             <div class="board-delete-btn" style="margin-left: 10px;">×</div>
-            <div class="board-export-btn" style="margin-left: 10px;">e</div>
+            <button class="board-export-btn" style="margin-left: 10px;">e</button>
         </div>
     `;
 
