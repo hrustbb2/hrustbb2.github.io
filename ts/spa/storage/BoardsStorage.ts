@@ -92,19 +92,19 @@ export class BoardsStorage {
         }
         let jsonString = JSON.stringify(data);
         const blob = new Blob([jsonString], { type: 'application/json' });
-        const file = new File([blob], boardData.title + '-database-export.json', { type: 'application/json' });
+        // const file = new File([blob], boardData.title + '-database-export.json', { type: 'application/json' });
 
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            navigator.share({
-              files: [file],
-              title: 'Поделиться файлом',
-              text: 'Вот мой файл для вас'
-            }).then(() => {
-              console.log('Успешно поделились файлом');
-            }).catch((error) => {
-              console.error('Ошибка при обмене файлом', error);
-            });
-        } else {
+        // if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        //     navigator.share({
+        //       files: [file],
+        //       title: 'Поделиться файлом',
+        //       text: 'Вот мой файл для вас'
+        //     }).then(() => {
+        //       console.log('Успешно поделились файлом');
+        //     }).catch((error) => {
+        //       console.error('Ошибка при обмене файлом', error);
+        //     });
+        // } else {
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -112,7 +112,7 @@ export class BoardsStorage {
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-        }
+        // }
     }
 
     public async importBoard(file: File): Promise<any> {
