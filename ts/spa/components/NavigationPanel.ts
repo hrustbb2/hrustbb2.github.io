@@ -81,7 +81,12 @@ export class NavigationPanel {
                 return false;
             }
             return n.tags.some((tag: any) => {
-                return tag.id === node.id
+                try{
+                    return tag.id === node.id
+                }catch(e){
+                    return false;
+                }
+                
             })
         });
         if (matchingNodes.length > 0) {
