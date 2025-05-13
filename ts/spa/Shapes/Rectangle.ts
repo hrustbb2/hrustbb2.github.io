@@ -206,7 +206,14 @@ export class Rectangle extends AbstractShape {
     }
 
     public hasTags(tagsIds: string[]): boolean {
-        return Object.values(this.data.tags || {}).some((obj: any) => tagsIds.includes(obj.id))
+        return Object.values(this.data.tags || {}).some((obj: any) => {
+            try{
+                return tagsIds.includes(obj.id)
+            }catch(e){
+                return false;
+            }
+            
+        })
     }
 
     public higlight(h: boolean): void {
