@@ -18,7 +18,7 @@
 //   );
 // });
 
-const CACHE_STATIC = 'static-cache-v5';
+const CACHE_STATIC = 'static-cache-v6';
 
 function hndlEventInstall(evt: any) {
     /**

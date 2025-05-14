@@ -79,7 +79,11 @@ export class BoardsStorage {
         for(let note of nodes){
             let noteTags = note.tags || [];
             for(let tag of noteTags){
-                tags[tag.id] = tag;
+                try{
+                    tags[tag.id] = tag;
+                }catch(e){
+                    continue;
+                }
             }
         }
 
