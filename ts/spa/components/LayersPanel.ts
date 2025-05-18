@@ -32,12 +32,20 @@ export class LayersPanel {
         this.appCommands.getLayers(this.currentBoard.id)
             .then((resp: any) => {
                 if (resp.success) {
+                    let selected = false;
                     for (let i in resp.layers) {
                         let l = this.createLabel();
                         l.load(resp.layers[i]);
                         this.labelsContainer.append(l.getTemplate());
                         l.eventsListen();
                         this.labels.push(l);
+                        if(!selected){
+                            this.appBus.setCurrentLayer(resp.layers[i].id);
+                            l.setActive(true);
+                            this.appBus.setVisibleLayers([resp.layers[i].id]);
+                            l.isChecked(true);
+                            selected = true;
+                        }
                     }
                 }
             });
@@ -157,7 +165,11 @@ class Label {
         this.onCheckboxClick = c;
     }
 
-    public isChecked(): boolean {
+    public isChecked(checked:boolean = null): boolean {
+        if(checked !== null){
+            this.checkbox.checked = checked;
+            return;
+        }
         return this.checkbox.checked;
     }
 

@@ -42518,12 +42518,20 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             this.appCommands.getLayers(this.currentBoard.id)
                 .then(function (resp) {
                 if (resp.success) {
+                    var selected = false;
                     for (var i in resp.layers) {
                         var l = _this.createLabel();
                         l.load(resp.layers[i]);
                         _this.labelsContainer.append(l.getTemplate());
                         l.eventsListen();
                         _this.labels.push(l);
+                        if (!selected) {
+                            _this.appBus.setCurrentLayer(resp.layers[i].id);
+                            l.setActive(true);
+                            _this.appBus.setVisibleLayers([resp.layers[i].id]);
+                            l.isChecked(true);
+                            selected = true;
+                        }
                     }
                 }
             });
@@ -42618,7 +42626,12 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         Label.prototype.setOnCheckboxClick = function (c) {
             this.onCheckboxClick = c;
         };
-        Label.prototype.isChecked = function () {
+        Label.prototype.isChecked = function (checked) {
+            if (checked === void 0) { checked = null; }
+            if (checked !== null) {
+                this.checkbox.checked = checked;
+                return;
+            }
             return this.checkbox.checked;
         };
         Label.prototype.setAppCommands = function (c) {
