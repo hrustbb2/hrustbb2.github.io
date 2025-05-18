@@ -40862,6 +40862,17 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     }
     return to.concat(ar || Array.prototype.slice.call(from));
 };
+var __values = (this && this.__values) || function(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(/*! ../tree/storage/AbstractShape */ "./spa/tree/storage/AbstractShape.ts"), __webpack_require__(/*! konva */ "./node_modules/konva/lib/index.js")], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, AbstractShape_1, konva_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", ({ value: true }));
@@ -41004,9 +41015,25 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
             return lines;
         };
         Rectangle.prototype.load = function (data) {
+            var e_1, _a;
             this.id = data.id;
             this.data = data;
-            var lines = this.getLines(data.preview);
+            var lines = [];
+            var ps = data.preview.split('\n');
+            try {
+                for (var ps_1 = __values(ps), ps_1_1 = ps_1.next(); !ps_1_1.done; ps_1_1 = ps_1.next()) {
+                    var p = ps_1_1.value;
+                    var l = this.getLines(p);
+                    lines = lines.concat(l);
+                }
+            }
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            finally {
+                try {
+                    if (ps_1_1 && !ps_1_1.done && (_a = ps_1.return)) _a.call(ps_1);
+                }
+                finally { if (e_1) throw e_1.error; }
+            }
             this.text.setText(lines.join('\n'));
             var h = lines.length * 22 + 20;
             if (h > this.height) {

@@ -170,7 +170,12 @@ export class Rectangle extends AbstractShape {
         this.id = data.id;
         this.data = data;
 
-        let lines = this.getLines(data.preview);
+        let lines:string[] = [];
+        let ps = data.preview.split('\n');
+        for(let p of ps){
+            let l = this.getLines(p);
+            lines = lines.concat(l);
+        }
         this.text.setText(lines.join('\n'));
         let h = lines.length * 22 + 20;
         if (h > this.height) {
