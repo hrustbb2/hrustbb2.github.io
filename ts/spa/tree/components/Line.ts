@@ -195,6 +195,7 @@ export class Line {
         }
         let arrowSize = 10;
         this.line.strokeWidth(2);
+        this.arrow.strokeWidth(2);
         if (this.isHihlight) {
             this.line.strokeWidth(10);
             arrowSize = 20;
