@@ -45479,9 +45479,20 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 /*!*************************************!*\
   !*** ./spa/tree/components/Line.ts ***!
   \*************************************/
-/***/ ((module, exports, __webpack_require__) => {
+/***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(/*! konva */ "./node_modules/konva/lib/index.js")], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, konva_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __values = (this && this.__values) || function(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(/*! konva */ "./node_modules/konva/lib/index.js")], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, konva_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", ({ value: true }));
     exports.Line = void 0;
@@ -45490,6 +45501,14 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             this.isHihlight = false;
             this.id = this.makeid(16);
             this.line = new konva_1.default.Line({
+                points: [],
+                stroke: 'black',
+                strokeWidth: 2,
+                // lineCap: 'round',
+                lineJoin: 'round',
+                // draggable: true,
+            });
+            this.arrow = new konva_1.default.Line({
                 points: [],
                 stroke: 'black',
                 strokeWidth: 2,
@@ -45519,7 +45538,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         Line.prototype.setHighlight = function (b) {
             this.isHihlight = b;
         };
-        Line.prototype.__getPath = function () {
+        Line.prototype.getPath = function () {
             if (!this.fromShape || !this.toShape)
                 return [];
             var fromShape = {
@@ -45547,256 +45566,122 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             var fromBottom = fromShape.y + fromShape.height;
             var toRight = toShape.x + toShape.width;
             var toBottom = toShape.y + toShape.height;
-            var arrowSize = 10; // Размер стрелочки
+            var center = {};
+            var angle = 0;
             if (fromRight < toShape.x && (toCenter.y < fromBottom + 60 && toCenter.y > fromShape.y - 60)) {
                 // fromShape слева от toShape → стрелка вправо
                 path.push(fromRight - 10, fromCenter.y);
                 path.push(fromRight, fromCenter.y);
                 path.push(toShape.x, toCenter.y);
-                // Стрелка (треугольник вправо)
-                path.push(toShape.x - arrowSize, toCenter.y - arrowSize / 2);
-                path.push(toShape.x, toCenter.y);
-                path.push(toShape.x - arrowSize, toCenter.y + arrowSize / 2);
+                center = {
+                    x: (fromCenter.x + toCenter.x) / 2,
+                    y: (fromBottom + toShape.y) / 2
+                };
+                angle = Math.atan2(toShape.x - fromRight, fromCenter.y - toCenter.y) - Math.PI;
+                path.push(toShape.x + 10);
+                path.push(toCenter.y);
             }
             else if (toRight < fromShape.x && (toCenter.y < fromBottom + 60 && toCenter.y > fromShape.y - 60)) {
                 // fromShape справа от toShape → стрелка влево
                 path.push(fromShape.x + 10, fromCenter.y);
                 path.push(fromShape.x, fromCenter.y);
                 path.push(toRight, toCenter.y);
-                // Стрелка (треугольник влево)
-                path.push(toRight + arrowSize, toCenter.y - arrowSize / 2);
-                path.push(toRight, toCenter.y);
-                path.push(toRight + arrowSize, toCenter.y + arrowSize / 2);
+                center = {
+                    x: (fromCenter.x + toCenter.x) / 2,
+                    y: (fromBottom + toShape.y) / 2
+                };
+                angle = Math.atan2(toRight - fromShape.x, fromCenter.y - toCenter.y) - Math.PI;
+                path.push(toRight - 10);
+                path.push(toCenter.y);
             }
             else if (fromBottom < toShape.y) {
                 // fromShape выше toShape → стрелка вниз
                 path.push(fromCenter.x, fromBottom - 10);
                 path.push(fromCenter.x, fromBottom);
                 path.push(toCenter.x, toShape.y);
-                // Стрелка (треугольник вниз)
-                path.push(toCenter.x - arrowSize / 2, toShape.y - arrowSize);
-                path.push(toCenter.x, toShape.y);
-                path.push(toCenter.x + arrowSize / 2, toShape.y - arrowSize);
+                center = {
+                    x: (fromCenter.x + toCenter.x) / 2,
+                    y: (fromBottom + toShape.y) / 2
+                };
+                angle = Math.atan2(toCenter.x - fromCenter.x, fromBottom - toShape.y) - Math.PI;
+                path.push(toCenter.x);
+                path.push(toShape.y + 10);
             }
             else if (toBottom < fromShape.y) {
                 // fromShape ниже toShape → стрелка вверх
                 path.push(fromCenter.x, fromShape.y + 10);
                 path.push(fromCenter.x, fromShape.y);
                 path.push(toCenter.x, toBottom);
-                // Стрелка (треугольник вверх)
-                path.push(toCenter.x - arrowSize / 2, toBottom + arrowSize);
-                path.push(toCenter.x, toBottom);
-                path.push(toCenter.x + arrowSize / 2, toBottom + arrowSize);
-            }
-            return path;
-        };
-        Line.prototype.getPath = function () {
-            if (!this.fromShape || !this.toShape) {
-                return [];
-            }
-            var fromShape = {
-                x: this.fromShape.getCoordinates().x - 10,
-                y: this.fromShape.getCoordinates().y - 10,
-                width: this.fromShape.getWidth() + 20,
-                height: this.fromShape.getHeight() + 20,
-            };
-            var toShape = {
-                x: this.toShape.getCoordinates().x - 10,
-                y: this.toShape.getCoordinates().y - 10,
-                width: this.toShape.getWidth() + 20,
-                height: this.toShape.getHeight() + 20,
-            };
-            // Вычисление центра каждой фигуры
-            var fromCenter = {
-                x: fromShape.x + fromShape.width / 2,
-                y: fromShape.y + fromShape.height / 2,
-            };
-            var toCenter = {
-                x: toShape.x + toShape.width / 2,
-                y: toShape.y + toShape.height / 2,
-            };
-            var path = [];
-            // Определяем относительное расположение фигур
-            var fromRight = fromShape.x + fromShape.width;
-            var fromBottom = fromShape.y + fromShape.height;
-            var toRight = toShape.x + toShape.width;
-            var toBottom = toShape.y + toShape.height;
-            if (fromRight < toShape.x && (toCenter.y < fromBottom + 60 && toCenter.y > fromShape.y - 60)) {
-                // fromShape находится слева от toShape (горизонтальное соединение, стрелка вправо)
-                path.push(fromRight - 10);
-                path.push(fromCenter.y);
-                path.push(fromRight);
-                path.push(fromCenter.y);
-                path.push(toShape.x);
-                path.push(toCenter.y);
-                // Стрелочка (три точки: острие и две боковые)
-                var arrowSize = 10;
-                path.push(toShape.x);
-                path.push(toCenter.y);
-                path.push(toShape.x + arrowSize);
-                path.push(toCenter.y - arrowSize / 2);
-                path.push(toShape.x + arrowSize);
-                path.push(toCenter.y + arrowSize / 2);
-                path.push(toShape.x);
-                path.push(toCenter.y);
-            }
-            else if (toRight < fromShape.x && (toCenter.y < fromBottom + 60 && toCenter.y > fromShape.y - 60)) {
-                // fromShape находится справа от toShape (горизонтальное соединение, стрелка влево)
-                path.push(fromShape.x + 10);
-                path.push(fromCenter.y);
-                path.push(fromShape.x);
-                path.push(fromCenter.y);
-                path.push(toRight);
-                path.push(toCenter.y);
-                // Стрелочка
-                var arrowSize = 10;
-                path.push(toRight);
-                path.push(toCenter.y);
-                path.push(toRight - arrowSize);
-                path.push(toCenter.y - arrowSize / 2);
-                path.push(toRight - arrowSize);
-                path.push(toCenter.y + arrowSize / 2);
-                path.push(toRight);
-                path.push(toCenter.y);
-            }
-            else if (fromBottom < toShape.y) {
-                // fromShape находится выше toShape (вертикальное соединение, стрелка вниз)
-                path.push(fromCenter.x);
-                path.push(fromBottom - 10);
-                path.push(fromCenter.x);
-                path.push(fromBottom);
-                path.push(toCenter.x);
-                path.push(toShape.y);
-                // Стрелочка
-                var arrowSize = 10;
-                path.push(toCenter.x);
-                path.push(toShape.y);
-                path.push(toCenter.x - arrowSize / 2);
-                path.push(toShape.y + arrowSize);
-                path.push(toCenter.x + arrowSize / 2);
-                path.push(toShape.y + arrowSize);
-                path.push(toCenter.x);
-                path.push(toShape.y);
-            }
-            else if (toBottom < fromShape.y) {
-                // fromShape находится ниже toShape (вертикальное соединение, стрелка вверх)
-                path.push(fromCenter.x);
-                path.push(fromShape.y + 10);
-                path.push(fromCenter.x);
-                path.push(fromShape.y);
-                path.push(toCenter.x);
-                path.push(toBottom);
-                // Стрелочка
-                var arrowSize = 10;
-                path.push(toCenter.x);
-                path.push(toBottom);
-                path.push(toCenter.x - arrowSize / 2);
-                path.push(toBottom - arrowSize);
-                path.push(toCenter.x + arrowSize / 2);
-                path.push(toBottom - arrowSize);
-                path.push(toCenter.x);
-                path.push(toBottom);
-            }
-            else {
-                // Случай пересечения или частичного наложения (опционально)
-            }
-            return path;
-        };
-        Line.prototype._getPath = function () {
-            if (!this.fromShape || !this.toShape) {
-                return [];
-            }
-            var fromShape = {
-                x: this.fromShape.getCoordinates().x - 10,
-                y: this.fromShape.getCoordinates().y - 10,
-                width: this.fromShape.getWidth() + 20,
-                height: this.fromShape.getHeight() + 20,
-            };
-            var toShape = {
-                x: this.toShape.getCoordinates().x - 10,
-                y: this.toShape.getCoordinates().y - 10,
-                width: this.toShape.getWidth() + 20,
-                height: this.toShape.getHeight() + 20,
-            };
-            // Вычисление центра каждой фигуры
-            var fromCenter = {
-                x: fromShape.x + fromShape.width / 2,
-                y: fromShape.y + fromShape.height / 2,
-            };
-            var toCenter = {
-                x: toShape.x + toShape.width / 2,
-                y: toShape.y + toShape.height / 2,
-            };
-            var path = [];
-            // Определяем относительное расположение фигур
-            var fromRight = fromShape.x + fromShape.width;
-            var fromBottom = fromShape.y + fromShape.height;
-            var toRight = toShape.x + toShape.width;
-            var toBottom = toShape.y + toShape.height;
-            if (fromRight < toShape.x && (toCenter.y < fromBottom + 60 && toCenter.y > fromShape.y - 60)) {
-                // fromShape находится слева от toShape
-                path.push(fromRight - 10);
-                path.push(fromCenter.y);
-                path.push(fromRight);
-                path.push(fromCenter.y);
-                path.push(toShape.x);
-                path.push(toCenter.y);
-                // Дорисуй стрелочку соостно линии
-                path.push(toShape.x + 10);
-                path.push(toCenter.y);
-            }
-            else if (toRight < fromShape.x && (toCenter.y < fromBottom + 60 && toCenter.y > fromShape.y - 60)) {
-                // fromShape находится справа от toShape
-                path.push(fromShape.x + 10);
-                path.push(fromCenter.y);
-                path.push(fromShape.x);
-                path.push(fromCenter.y);
-                path.push(toRight);
-                path.push(toCenter.y);
-                // Дорисуй стрелочку соостно линии
-                path.push(toRight - 10);
-                path.push(toCenter.y);
-            }
-            else if (fromBottom < toShape.y) {
-                // fromShape находится выше toShape
-                path.push(fromCenter.x);
-                path.push(fromBottom - 10);
-                path.push(fromCenter.x);
-                path.push(fromBottom);
-                path.push(toCenter.x);
-                path.push(toShape.y);
-                // Дорисуй стрелочку соостно линии
-                path.push(toCenter.x);
-                path.push(toShape.y + 10);
-            }
-            else if (toBottom < fromShape.y) {
-                // fromShape находится ниже toShape
-                path.push(fromCenter.x);
-                path.push(fromShape.y + 10);
-                path.push(fromCenter.x);
-                path.push(fromShape.y);
-                path.push(toCenter.x);
-                path.push(toBottom);
-                // Дорисуй стрелочку соостно линии
+                center = {
+                    x: (fromCenter.x + toCenter.x) / 2,
+                    y: (fromBottom + toShape.y) / 2
+                };
+                angle = Math.atan2(toCenter.x - fromCenter.x, fromShape.y - toBottom) - Math.PI;
                 path.push(toCenter.x);
                 path.push(toBottom - 10);
             }
-            else {
-                // Случай пересечения или частичного наложения (опционально)
-            }
-            return path;
+            return {
+                path: path,
+                center: center,
+                angle: angle
+            };
+        };
+        Line.prototype.rotatePoint = function (x, y, cx, cy, angleRad) {
+            var cos = Math.cos(angleRad);
+            var sin = Math.sin(angleRad);
+            // Смещаем точку в начало координат относительно центра вращения
+            var nx = x - cx;
+            var ny = y - cy;
+            // Применяем поворот
+            var rotatedX = nx * cos - ny * sin;
+            var rotatedY = nx * sin + ny * cos;
+            // Возвращаем точку обратно в исходную систему координат
+            return {
+                x: rotatedX + cx,
+                y: rotatedY + cy
+            };
         };
         Line.prototype.draw = function (layer) {
+            var e_1, _a;
+            var _this = this;
             var points = this.getPath();
-            if (points.length == 0) {
+            if (points.path.length == 0) {
                 return;
             }
+            var arrowSize = 10;
             this.line.strokeWidth(2);
             if (this.isHihlight) {
                 this.line.strokeWidth(10);
+                arrowSize = 20;
+                this.arrow.strokeWidth(10);
             }
-            this.line.points(points);
+            this.line.points(points.path);
+            var path = [];
+            path.push({ x: points.center.x, y: points.center.y });
+            path.push({ x: points.center.x - arrowSize / 2, y: points.center.y - arrowSize });
+            path.push({ x: points.center.x + arrowSize / 2, y: points.center.y - arrowSize });
+            path.push({ x: points.center.x, y: points.center.y });
+            path = path.map(function (p) {
+                return _this.rotatePoint(p.x, p.y, points.center.x, points.center.y, points.angle);
+            });
+            var pp = [];
+            try {
+                for (var path_1 = __values(path), path_1_1 = path_1.next(); !path_1_1.done; path_1_1 = path_1.next()) {
+                    var p = path_1_1.value;
+                    pp.push(p.x);
+                    pp.push(p.y);
+                }
+            }
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            finally {
+                try {
+                    if (path_1_1 && !path_1_1.done && (_a = path_1.return)) _a.call(path_1);
+                }
+                finally { if (e_1) throw e_1.error; }
+            }
+            this.arrow.points(pp);
             layer.add(this.line);
+            layer.add(this.arrow);
         };
         Line.prototype.makeid = function (length) {
             var result = '';
@@ -45812,6 +45697,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         };
         Line.prototype.remove = function () {
             this.line.remove();
+            this.arrow.remove();
         };
         return Line;
     }());
