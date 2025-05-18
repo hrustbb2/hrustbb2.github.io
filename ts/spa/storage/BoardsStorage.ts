@@ -67,6 +67,31 @@ export class BoardsStorage {
         return table.update(board.id, board);
     }
 
+    private getPath(allTags:any[], id:string): any
+    {
+        let notes:any[] = [];
+        let links:any[] = [];
+        for(let tag of allTags){
+            if(!tag.links){
+                continue;
+            }
+            for(let l of tag.links){
+                if(l.to == id){
+                    notes.push(tag);
+                    links.push(l);
+                    let path = this.getPath(allTags, tag.id);
+                    notes = notes.concat(path.notes);
+                    links = links.concat(path.links);
+
+                }
+            }
+        }
+        return {
+            notes: notes,
+            links: links,
+        };
+    }
+
     public async exportBoard(boardId:string): Promise<any>
     {
         let boardData = await this.getById(boardId);
@@ -75,12 +100,20 @@ export class BoardsStorage {
         let nodes = await this.notesStorage.getNotes(boardId);
         let notesLinks = await this.notesLinksStorage.getList(boardId);
         let tags:any = {};
+        let tagsLinks:any = {};
         let allTags = await this.tagsStorage.getTagsWithLinks();
         for(let note of nodes){
             let noteTags = note.tags || [];
             for(let tag of noteTags){
                 try{
                     tags[tag.id] = tag;
+                    let path = this.getPath(allTags, tag.id);
+                    for(let p of path.notes){
+                        tags[p.id] = p;
+                    }
+                    for(let l of path.links){
+                        tagsLinks[l.id] = l;
+                    }
                 }catch(e){
                     continue;
                 }
@@ -93,6 +126,7 @@ export class BoardsStorage {
             notes: nodes,
             notesLinks: notesLinks,
             tags: tags,
+            tagsLinks: tagsLinks,
         }
         let jsonString = JSON.stringify(data);
         const blob = new Blob([jsonString], { type: 'application/json' });
@@ -136,13 +170,22 @@ export class BoardsStorage {
                 }
                 let y = 10;
                 for(let i in jsonData.tags){
-                    this.tagsStorage.createTag({
-                        id: jsonData.tags[i].id,
-                        x: 10,
-                        y: y,
-                        title: jsonData.tags[i].title,
+                    this.tagsStorage.getById(jsonData.tags[i].id)
+                    .then((resp:any)=>{
+                        if(!resp || resp.length == 0){
+                            this.tagsStorage.createTag({
+                                id: jsonData.tags[i].id,
+                                x: 10,
+                                y: y,
+                                title: jsonData.tags[i].title,
+                            });
+                            y = y + 80;
+                        }
                     });
-                    y = y + 80;
+                }
+                for(let i in jsonData.tagsLinks){
+                    let l = jsonData.tagsLinks[i];
+                    this.tagsLinksStorage.link(l.from, l.to);
                 }
             }catch (err) {
                 console.error('Некорректный формат файла:', err);

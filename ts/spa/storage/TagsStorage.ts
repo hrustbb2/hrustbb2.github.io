@@ -38,6 +38,11 @@ export class TagsStorage {
         return Promise.resolve(tags);
     }
 
+    public getById(id: string): Promise<any> {
+        let table: Table = (<any>this.db).tags;
+        return table.where('id').equals(id).toArray();
+    }
+
     public createTag(tag: TTag): Promise<any> {
         let table: Table = (<any>this.db).tags;
         return table.add(tag);

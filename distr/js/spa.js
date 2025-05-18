@@ -44195,59 +44195,130 @@ var __values = (this && this.__values) || function(o) {
             var table = this.db.boards;
             return table.update(board.id, board);
         };
+        BoardsStorage.prototype.getPath = function (allTags, id) {
+            var e_1, _a, e_2, _b;
+            var notes = [];
+            var links = [];
+            try {
+                for (var allTags_1 = __values(allTags), allTags_1_1 = allTags_1.next(); !allTags_1_1.done; allTags_1_1 = allTags_1.next()) {
+                    var tag = allTags_1_1.value;
+                    if (!tag.links) {
+                        continue;
+                    }
+                    try {
+                        for (var _c = (e_2 = void 0, __values(tag.links)), _d = _c.next(); !_d.done; _d = _c.next()) {
+                            var l = _d.value;
+                            if (l.to == id) {
+                                notes.push(tag);
+                                links.push(l);
+                                var path = this.getPath(allTags, tag.id);
+                                notes = notes.concat(path.notes);
+                                links = links.concat(path.links);
+                            }
+                        }
+                    }
+                    catch (e_2_1) { e_2 = { error: e_2_1 }; }
+                    finally {
+                        try {
+                            if (_d && !_d.done && (_b = _c.return)) _b.call(_c);
+                        }
+                        finally { if (e_2) throw e_2.error; }
+                    }
+                }
+            }
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            finally {
+                try {
+                    if (allTags_1_1 && !allTags_1_1.done && (_a = allTags_1.return)) _a.call(allTags_1);
+                }
+                finally { if (e_1) throw e_1.error; }
+            }
+            return {
+                notes: notes,
+                links: links,
+            };
+        };
         BoardsStorage.prototype.exportBoard = function (boardId) {
             return __awaiter(this, void 0, void 0, function () {
-                var boardData, layers, nodes, notesLinks, tags, allTags, nodes_1, nodes_1_1, note, noteTags, noteTags_1, noteTags_1_1, tag, data, jsonString, blob, url, a;
-                var e_1, _a, e_2, _b;
-                return __generator(this, function (_c) {
-                    switch (_c.label) {
+                var boardData, layers, nodes, notesLinks, tags, tagsLinks, allTags, nodes_1, nodes_1_1, note, noteTags, noteTags_1, noteTags_1_1, tag, path, _a, _b, p, _c, _d, l, data, jsonString, blob, url, a;
+                var e_3, _e, e_4, _f, e_5, _g, e_6, _h;
+                return __generator(this, function (_j) {
+                    switch (_j.label) {
                         case 0: return [4 /*yield*/, this.getById(boardId)];
                         case 1:
-                            boardData = _c.sent();
+                            boardData = _j.sent();
                             boardData = boardData[0];
                             return [4 /*yield*/, this.layersStorage.getList(boardId)];
                         case 2:
-                            layers = _c.sent();
+                            layers = _j.sent();
                             return [4 /*yield*/, this.notesStorage.getNotes(boardId)];
                         case 3:
-                            nodes = _c.sent();
+                            nodes = _j.sent();
                             return [4 /*yield*/, this.notesLinksStorage.getList(boardId)];
                         case 4:
-                            notesLinks = _c.sent();
+                            notesLinks = _j.sent();
                             tags = {};
+                            tagsLinks = {};
                             return [4 /*yield*/, this.tagsStorage.getTagsWithLinks()];
                         case 5:
-                            allTags = _c.sent();
+                            allTags = _j.sent();
                             try {
                                 for (nodes_1 = __values(nodes), nodes_1_1 = nodes_1.next(); !nodes_1_1.done; nodes_1_1 = nodes_1.next()) {
                                     note = nodes_1_1.value;
                                     noteTags = note.tags || [];
                                     try {
-                                        for (noteTags_1 = (e_2 = void 0, __values(noteTags)), noteTags_1_1 = noteTags_1.next(); !noteTags_1_1.done; noteTags_1_1 = noteTags_1.next()) {
+                                        for (noteTags_1 = (e_4 = void 0, __values(noteTags)), noteTags_1_1 = noteTags_1.next(); !noteTags_1_1.done; noteTags_1_1 = noteTags_1.next()) {
                                             tag = noteTags_1_1.value;
                                             try {
                                                 tags[tag.id] = tag;
+                                                path = this.getPath(allTags, tag.id);
+                                                try {
+                                                    for (_a = (e_5 = void 0, __values(path.notes)), _b = _a.next(); !_b.done; _b = _a.next()) {
+                                                        p = _b.value;
+                                                        tags[p.id] = p;
+                                                    }
+                                                }
+                                                catch (e_5_1) { e_5 = { error: e_5_1 }; }
+                                                finally {
+                                                    try {
+                                                        if (_b && !_b.done && (_g = _a.return)) _g.call(_a);
+                                                    }
+                                                    finally { if (e_5) throw e_5.error; }
+                                                }
+                                                try {
+                                                    for (_c = (e_6 = void 0, __values(path.links)), _d = _c.next(); !_d.done; _d = _c.next()) {
+                                                        l = _d.value;
+                                                        tagsLinks[l.id] = l;
+                                                    }
+                                                }
+                                                catch (e_6_1) { e_6 = { error: e_6_1 }; }
+                                                finally {
+                                                    try {
+                                                        if (_d && !_d.done && (_h = _c.return)) _h.call(_c);
+                                                    }
+                                                    finally { if (e_6) throw e_6.error; }
+                                                }
                                             }
                                             catch (e) {
                                                 continue;
                                             }
                                         }
                                     }
-                                    catch (e_2_1) { e_2 = { error: e_2_1 }; }
+                                    catch (e_4_1) { e_4 = { error: e_4_1 }; }
                                     finally {
                                         try {
-                                            if (noteTags_1_1 && !noteTags_1_1.done && (_b = noteTags_1.return)) _b.call(noteTags_1);
+                                            if (noteTags_1_1 && !noteTags_1_1.done && (_f = noteTags_1.return)) _f.call(noteTags_1);
                                         }
-                                        finally { if (e_2) throw e_2.error; }
+                                        finally { if (e_4) throw e_4.error; }
                                     }
                                 }
                             }
-                            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+                            catch (e_3_1) { e_3 = { error: e_3_1 }; }
                             finally {
                                 try {
-                                    if (nodes_1_1 && !nodes_1_1.done && (_a = nodes_1.return)) _a.call(nodes_1);
+                                    if (nodes_1_1 && !nodes_1_1.done && (_e = nodes_1.return)) _e.call(nodes_1);
                                 }
-                                finally { if (e_1) throw e_1.error; }
+                                finally { if (e_3) throw e_3.error; }
                             }
                             data = {
                                 board: boardData,
@@ -44255,6 +44326,7 @@ var __values = (this && this.__values) || function(o) {
                                 notes: nodes,
                                 notesLinks: notesLinks,
                                 tags: tags,
+                                tagsLinks: tagsLinks,
                             };
                             jsonString = JSON.stringify(data);
                             blob = new Blob([jsonString], { type: 'application/json' });
@@ -44278,26 +44350,38 @@ var __values = (this && this.__values) || function(o) {
                     reader = new FileReader();
                     reader.onload = function (e) {
                         try {
-                            var jsonData = JSON.parse(e.target.result);
-                            _this.add(jsonData.board);
-                            for (var i in jsonData.layers) {
-                                _this.layersStorage.add(jsonData.layers[i]);
+                            var jsonData_1 = JSON.parse(e.target.result);
+                            _this.add(jsonData_1.board);
+                            for (var i in jsonData_1.layers) {
+                                _this.layersStorage.add(jsonData_1.layers[i]);
                             }
-                            for (var i in jsonData.notes) {
-                                _this.notesStorage.createNote(jsonData.notes[i]);
+                            for (var i in jsonData_1.notes) {
+                                _this.notesStorage.createNote(jsonData_1.notes[i]);
                             }
-                            for (var i in jsonData.notesLinks) {
-                                _this.notesLinksStorage.add(jsonData.notesLinks[i]);
+                            for (var i in jsonData_1.notesLinks) {
+                                _this.notesLinksStorage.add(jsonData_1.notesLinks[i]);
                             }
-                            var y = 10;
-                            for (var i in jsonData.tags) {
-                                _this.tagsStorage.createTag({
-                                    id: jsonData.tags[i].id,
-                                    x: 10,
-                                    y: y,
-                                    title: jsonData.tags[i].title,
+                            var y_1 = 10;
+                            var _loop_1 = function (i) {
+                                _this.tagsStorage.getById(jsonData_1.tags[i].id)
+                                    .then(function (resp) {
+                                    if (!resp || resp.length == 0) {
+                                        _this.tagsStorage.createTag({
+                                            id: jsonData_1.tags[i].id,
+                                            x: 10,
+                                            y: y_1,
+                                            title: jsonData_1.tags[i].title,
+                                        });
+                                        y_1 = y_1 + 80;
+                                    }
                                 });
-                                y = y + 80;
+                            };
+                            for (var i in jsonData_1.tags) {
+                                _loop_1(i);
+                            }
+                            for (var i in jsonData_1.tagsLinks) {
+                                var l = jsonData_1.tagsLinks[i];
+                                _this.tagsLinksStorage.link(l.from, l.to);
                             }
                         }
                         catch (err) {
@@ -44330,7 +44414,7 @@ var __values = (this && this.__values) || function(o) {
             var _this = this;
             var reader = new FileReader();
             reader.onload = function (e) {
-                var e_3, _a;
+                var e_7, _a;
                 try {
                     var jsonData = JSON.parse(e.target.result);
                     var data = jsonData.data.data;
@@ -44353,12 +44437,12 @@ var __values = (this && this.__values) || function(o) {
                             _this.db[table].bulkAdd(r.rows);
                         }
                     }
-                    catch (e_3_1) { e_3 = { error: e_3_1 }; }
+                    catch (e_7_1) { e_7 = { error: e_7_1 }; }
                     finally {
                         try {
                             if (data_1_1 && !data_1_1.done && (_a = data_1.return)) _a.call(data_1);
                         }
-                        finally { if (e_3) throw e_3.error; }
+                        finally { if (e_7) throw e_7.error; }
                     }
                     // Импортируем данные в базу данных
                     // this.db.import(jsonData)
@@ -44437,6 +44521,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             this.boardsStorage.setNotesStorage(ns);
             var ts = this.getTagsStorage();
             this.boardsStorage.setTagsStorage(ts);
+            var tls = this.getTagsLinksStorage();
+            this.boardsStorage.setTagsLinksStorage(tls);
             return this.boardsStorage;
         };
         Factory.prototype.getLayersStorage = function () {
@@ -44820,6 +44906,10 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                     }
                 });
             });
+        };
+        TagsStorage.prototype.getById = function (id) {
+            var table = this.db.tags;
+            return table.where('id').equals(id).toArray();
         };
         TagsStorage.prototype.createTag = function (tag) {
             var table = this.db.tags;
@@ -45416,7 +45506,190 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         Line.prototype.setHighlight = function (b) {
             this.isHihlight = b;
         };
+        Line.prototype.__getPath = function () {
+            if (!this.fromShape || !this.toShape)
+                return [];
+            var fromShape = {
+                x: this.fromShape.getCoordinates().x - 10,
+                y: this.fromShape.getCoordinates().y - 10,
+                width: this.fromShape.getWidth() + 20,
+                height: this.fromShape.getHeight() + 20,
+            };
+            var toShape = {
+                x: this.toShape.getCoordinates().x - 10,
+                y: this.toShape.getCoordinates().y - 10,
+                width: this.toShape.getWidth() + 20,
+                height: this.toShape.getHeight() + 20,
+            };
+            var fromCenter = {
+                x: fromShape.x + fromShape.width / 2,
+                y: fromShape.y + fromShape.height / 2,
+            };
+            var toCenter = {
+                x: toShape.x + toShape.width / 2,
+                y: toShape.y + toShape.height / 2,
+            };
+            var path = [];
+            var fromRight = fromShape.x + fromShape.width;
+            var fromBottom = fromShape.y + fromShape.height;
+            var toRight = toShape.x + toShape.width;
+            var toBottom = toShape.y + toShape.height;
+            var arrowSize = 10; // Размер стрелочки
+            if (fromRight < toShape.x && (toCenter.y < fromBottom + 60 && toCenter.y > fromShape.y - 60)) {
+                // fromShape слева от toShape → стрелка вправо
+                path.push(fromRight - 10, fromCenter.y);
+                path.push(fromRight, fromCenter.y);
+                path.push(toShape.x, toCenter.y);
+                // Стрелка (треугольник вправо)
+                path.push(toShape.x - arrowSize, toCenter.y - arrowSize / 2);
+                path.push(toShape.x, toCenter.y);
+                path.push(toShape.x - arrowSize, toCenter.y + arrowSize / 2);
+            }
+            else if (toRight < fromShape.x && (toCenter.y < fromBottom + 60 && toCenter.y > fromShape.y - 60)) {
+                // fromShape справа от toShape → стрелка влево
+                path.push(fromShape.x + 10, fromCenter.y);
+                path.push(fromShape.x, fromCenter.y);
+                path.push(toRight, toCenter.y);
+                // Стрелка (треугольник влево)
+                path.push(toRight + arrowSize, toCenter.y - arrowSize / 2);
+                path.push(toRight, toCenter.y);
+                path.push(toRight + arrowSize, toCenter.y + arrowSize / 2);
+            }
+            else if (fromBottom < toShape.y) {
+                // fromShape выше toShape → стрелка вниз
+                path.push(fromCenter.x, fromBottom - 10);
+                path.push(fromCenter.x, fromBottom);
+                path.push(toCenter.x, toShape.y);
+                // Стрелка (треугольник вниз)
+                path.push(toCenter.x - arrowSize / 2, toShape.y - arrowSize);
+                path.push(toCenter.x, toShape.y);
+                path.push(toCenter.x + arrowSize / 2, toShape.y - arrowSize);
+            }
+            else if (toBottom < fromShape.y) {
+                // fromShape ниже toShape → стрелка вверх
+                path.push(fromCenter.x, fromShape.y + 10);
+                path.push(fromCenter.x, fromShape.y);
+                path.push(toCenter.x, toBottom);
+                // Стрелка (треугольник вверх)
+                path.push(toCenter.x - arrowSize / 2, toBottom + arrowSize);
+                path.push(toCenter.x, toBottom);
+                path.push(toCenter.x + arrowSize / 2, toBottom + arrowSize);
+            }
+            return path;
+        };
         Line.prototype.getPath = function () {
+            if (!this.fromShape || !this.toShape) {
+                return [];
+            }
+            var fromShape = {
+                x: this.fromShape.getCoordinates().x - 10,
+                y: this.fromShape.getCoordinates().y - 10,
+                width: this.fromShape.getWidth() + 20,
+                height: this.fromShape.getHeight() + 20,
+            };
+            var toShape = {
+                x: this.toShape.getCoordinates().x - 10,
+                y: this.toShape.getCoordinates().y - 10,
+                width: this.toShape.getWidth() + 20,
+                height: this.toShape.getHeight() + 20,
+            };
+            // Вычисление центра каждой фигуры
+            var fromCenter = {
+                x: fromShape.x + fromShape.width / 2,
+                y: fromShape.y + fromShape.height / 2,
+            };
+            var toCenter = {
+                x: toShape.x + toShape.width / 2,
+                y: toShape.y + toShape.height / 2,
+            };
+            var path = [];
+            // Определяем относительное расположение фигур
+            var fromRight = fromShape.x + fromShape.width;
+            var fromBottom = fromShape.y + fromShape.height;
+            var toRight = toShape.x + toShape.width;
+            var toBottom = toShape.y + toShape.height;
+            if (fromRight < toShape.x && (toCenter.y < fromBottom + 60 && toCenter.y > fromShape.y - 60)) {
+                // fromShape находится слева от toShape (горизонтальное соединение, стрелка вправо)
+                path.push(fromRight - 10);
+                path.push(fromCenter.y);
+                path.push(fromRight);
+                path.push(fromCenter.y);
+                path.push(toShape.x);
+                path.push(toCenter.y);
+                // Стрелочка (три точки: острие и две боковые)
+                var arrowSize = 10;
+                path.push(toShape.x);
+                path.push(toCenter.y);
+                path.push(toShape.x + arrowSize);
+                path.push(toCenter.y - arrowSize / 2);
+                path.push(toShape.x + arrowSize);
+                path.push(toCenter.y + arrowSize / 2);
+                path.push(toShape.x);
+                path.push(toCenter.y);
+            }
+            else if (toRight < fromShape.x && (toCenter.y < fromBottom + 60 && toCenter.y > fromShape.y - 60)) {
+                // fromShape находится справа от toShape (горизонтальное соединение, стрелка влево)
+                path.push(fromShape.x + 10);
+                path.push(fromCenter.y);
+                path.push(fromShape.x);
+                path.push(fromCenter.y);
+                path.push(toRight);
+                path.push(toCenter.y);
+                // Стрелочка
+                var arrowSize = 10;
+                path.push(toRight);
+                path.push(toCenter.y);
+                path.push(toRight - arrowSize);
+                path.push(toCenter.y - arrowSize / 2);
+                path.push(toRight - arrowSize);
+                path.push(toCenter.y + arrowSize / 2);
+                path.push(toRight);
+                path.push(toCenter.y);
+            }
+            else if (fromBottom < toShape.y) {
+                // fromShape находится выше toShape (вертикальное соединение, стрелка вниз)
+                path.push(fromCenter.x);
+                path.push(fromBottom - 10);
+                path.push(fromCenter.x);
+                path.push(fromBottom);
+                path.push(toCenter.x);
+                path.push(toShape.y);
+                // Стрелочка
+                var arrowSize = 10;
+                path.push(toCenter.x);
+                path.push(toShape.y);
+                path.push(toCenter.x - arrowSize / 2);
+                path.push(toShape.y + arrowSize);
+                path.push(toCenter.x + arrowSize / 2);
+                path.push(toShape.y + arrowSize);
+                path.push(toCenter.x);
+                path.push(toShape.y);
+            }
+            else if (toBottom < fromShape.y) {
+                // fromShape находится ниже toShape (вертикальное соединение, стрелка вверх)
+                path.push(fromCenter.x);
+                path.push(fromShape.y + 10);
+                path.push(fromCenter.x);
+                path.push(fromShape.y);
+                path.push(toCenter.x);
+                path.push(toBottom);
+                // Стрелочка
+                var arrowSize = 10;
+                path.push(toCenter.x);
+                path.push(toBottom);
+                path.push(toCenter.x - arrowSize / 2);
+                path.push(toBottom - arrowSize);
+                path.push(toCenter.x + arrowSize / 2);
+                path.push(toBottom - arrowSize);
+                path.push(toCenter.x);
+                path.push(toBottom);
+            }
+            else {
+                // Случай пересечения или частичного наложения (опционально)
+            }
+            return path;
+        };
+        Line.prototype._getPath = function () {
             if (!this.fromShape || !this.toShape) {
                 return [];
             }
@@ -45455,6 +45728,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                 path.push(fromCenter.y);
                 path.push(toShape.x);
                 path.push(toCenter.y);
+                // Дорисуй стрелочку соостно линии
                 path.push(toShape.x + 10);
                 path.push(toCenter.y);
             }
@@ -45466,6 +45740,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                 path.push(fromCenter.y);
                 path.push(toRight);
                 path.push(toCenter.y);
+                // Дорисуй стрелочку соостно линии
                 path.push(toRight - 10);
                 path.push(toCenter.y);
             }
@@ -45477,6 +45752,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                 path.push(fromBottom);
                 path.push(toCenter.x);
                 path.push(toShape.y);
+                // Дорисуй стрелочку соостно линии
                 path.push(toCenter.x);
                 path.push(toShape.y + 10);
             }
@@ -45488,15 +45764,13 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                 path.push(fromShape.y);
                 path.push(toCenter.x);
                 path.push(toBottom);
+                // Дорисуй стрелочку соостно линии
                 path.push(toCenter.x);
                 path.push(toBottom - 10);
             }
             else {
                 // Случай пересечения или частичного наложения (опционально)
-                // throw new Error("Shapes are overlapping or not separable!");
             }
-            // Возвращаем массив точек в формате [x1, y1, x2, y2, ...]
-            // return path.flatMap(point => [point.x, point.y]);
             return path;
         };
         Line.prototype.draw = function (layer) {
