@@ -41019,6 +41019,9 @@ var __values = (this && this.__values) || function(o) {
             this.id = data.id;
             this.data = data;
             var lines = [];
+            if (!data.preview) {
+                data.preview = '';
+            }
             var ps = data.preview.split('\n');
             try {
                 for (var ps_1 = __values(ps), ps_1_1 = ps_1.next(); !ps_1_1.done; ps_1_1 = ps_1.next()) {

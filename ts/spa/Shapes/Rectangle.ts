@@ -171,6 +171,9 @@ export class Rectangle extends AbstractShape {
         this.data = data;
 
         let lines:string[] = [];
+        if(!data.preview){
+            data.preview = '';
+        }
         let ps = data.preview.split('\n');
         for(let p of ps){
             let l = this.getLines(p);
