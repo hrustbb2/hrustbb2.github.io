@@ -34,24 +34,25 @@ window.addEventListener('DOMContentLoaded', (event) => {
             factory.getStorageFactory().getBoardsStorage().importFromStr(text);
         });
     }
-
-    if(boardId){
-        factory.getStorageFactory().getBoardsStorage().getById(boardId)
-        .then((resp:any)=>{
-            let [board] = resp;
-            if(!board){
-                return;
-            }
-            let appBus = factory.getBusFactory().createAppBus();
-            appBus.setCurrentBoard(board);
-            if(nodeId){
-                setTimeout(()=>{
-                    factory.getComponentsFactory().getAppContainer().getPane().getStage().scale({ x: 1, y: 1 });
-                    appBus.highligtNote(nodeId);
-                }, 200);
-            }
-        });
-    }
+    setTimeout(()=>{
+        if(boardId){
+            factory.getStorageFactory().getBoardsStorage().getById(boardId)
+            .then((resp:any)=>{
+                let [board] = resp;
+                if(!board){
+                    return;
+                }
+                let appBus = factory.getBusFactory().createAppBus();
+                appBus.setCurrentBoard(board);
+                if(nodeId){
+                    setTimeout(()=>{
+                        factory.getComponentsFactory().getAppContainer().getPane().getStage().scale({ x: 1, y: 1 });
+                        appBus.highligtNote(nodeId);
+                    }, 200);
+                }
+            });
+        }
+    }, 200);
 
     // Регистрация service worker
     if ('serviceWorker' in navigator) {

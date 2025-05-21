@@ -44159,23 +44159,25 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __read = (th
                 factory.getStorageFactory().getBoardsStorage().importFromStr(text);
             });
         }
-        if (boardId) {
-            factory.getStorageFactory().getBoardsStorage().getById(boardId)
-                .then(function (resp) {
-                var _a = __read(resp, 1), board = _a[0];
-                if (!board) {
-                    return;
-                }
-                var appBus = factory.getBusFactory().createAppBus();
-                appBus.setCurrentBoard(board);
-                if (nodeId) {
-                    setTimeout(function () {
-                        factory.getComponentsFactory().getAppContainer().getPane().getStage().scale({ x: 1, y: 1 });
-                        appBus.highligtNote(nodeId);
-                    }, 200);
-                }
-            });
-        }
+        setTimeout(function () {
+            if (boardId) {
+                factory.getStorageFactory().getBoardsStorage().getById(boardId)
+                    .then(function (resp) {
+                    var _a = __read(resp, 1), board = _a[0];
+                    if (!board) {
+                        return;
+                    }
+                    var appBus = factory.getBusFactory().createAppBus();
+                    appBus.setCurrentBoard(board);
+                    if (nodeId) {
+                        setTimeout(function () {
+                            factory.getComponentsFactory().getAppContainer().getPane().getStage().scale({ x: 1, y: 1 });
+                            appBus.highligtNote(nodeId);
+                        }, 200);
+                    }
+                });
+            }
+        }, 200);
         // Регистрация service worker
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/distr/js/sw.js')
