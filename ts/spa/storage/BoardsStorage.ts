@@ -153,43 +153,48 @@ export class BoardsStorage {
         // }
     }
 
+    public importFromStr(str:string): void
+    {
+        try {
+            const jsonData = JSON.parse(str);
+            this.add(jsonData.board);
+            for(let i in jsonData.layers){
+                this.layersStorage.add(jsonData.layers[i]);
+            }
+            for(let i in jsonData.notes){
+                this.notesStorage.createNote(jsonData.notes[i]);
+            }
+            for(let i in jsonData.notesLinks){
+                this.notesLinksStorage.add(jsonData.notesLinks[i]);
+            }
+            let y = 10;
+            for(let i in jsonData.tags){
+                this.tagsStorage.getById(jsonData.tags[i].id)
+                .then((resp:any)=>{
+                    if(!resp || resp.length == 0){
+                        this.tagsStorage.createTag({
+                            id: jsonData.tags[i].id,
+                            x: 10,
+                            y: y,
+                            title: jsonData.tags[i].title,
+                        });
+                        y = y + 80;
+                    }
+                });
+            }
+            for(let i in jsonData.tagsLinks){
+                let l = jsonData.tagsLinks[i];
+                this.tagsLinksStorage.link(l.from, l.to);
+            }
+        }catch (err) {
+            console.error('Некорректный формат файла:', err);
+        }
+    }
+
     public async importBoard(file: File): Promise<any> {
         const reader = new FileReader();
         reader.onload = (e: any) => {
-            try {
-                const jsonData = JSON.parse(e.target.result);
-                this.add(jsonData.board);
-                for(let i in jsonData.layers){
-                    this.layersStorage.add(jsonData.layers[i]);
-                }
-                for(let i in jsonData.notes){
-                    this.notesStorage.createNote(jsonData.notes[i]);
-                }
-                for(let i in jsonData.notesLinks){
-                    this.notesLinksStorage.add(jsonData.notesLinks[i]);
-                }
-                let y = 10;
-                for(let i in jsonData.tags){
-                    this.tagsStorage.getById(jsonData.tags[i].id)
-                    .then((resp:any)=>{
-                        if(!resp || resp.length == 0){
-                            this.tagsStorage.createTag({
-                                id: jsonData.tags[i].id,
-                                x: 10,
-                                y: y,
-                                title: jsonData.tags[i].title,
-                            });
-                            y = y + 80;
-                        }
-                    });
-                }
-                for(let i in jsonData.tagsLinks){
-                    let l = jsonData.tagsLinks[i];
-                    this.tagsLinksStorage.link(l.from, l.to);
-                }
-            }catch (err) {
-                console.error('Некорректный формат файла:', err);
-            }
+            this.importFromStr(e.target.result);
         }
         reader.readAsText(file);
     }

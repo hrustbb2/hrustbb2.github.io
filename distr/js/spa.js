@@ -42031,6 +42031,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         AppContainer.prototype.getMainMenu = function () {
             return this.mainMenu;
         };
+        AppContainer.prototype.getPane = function () {
+            return this.pane;
+        };
         AppContainer.prototype.setCurrentBoard = function (board) {
             var _this = this;
             this.currentBoard = board;
@@ -43104,6 +43107,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
             this.editBtn = this.container.querySelector('.js-edit-button');
             this.saveBtn = this.container.querySelector('.js-save-button');
             this.cryptBtn = this.container.querySelector('.js-crypt-button');
+            this.urlBtn = this.container.querySelector('.js-url-button');
             this.closeBtn.onclick = function () {
                 _this.container.classList.toggle('hide', true);
             };
@@ -43207,6 +43211,17 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
                     }
                 });
                 _this.appBus.updateNavigatonPanel();
+            };
+            this.urlBtn.onclick = function () {
+                var url = 'https://hrustbb2.github.io/?b=' + _this.data.boardId + '&n=' + _this.data.id;
+                console.log(url);
+                navigator.clipboard.writeText(url)
+                    .then(function () {
+                    alert('Скопировано в буфер');
+                })
+                    .catch(function (err) {
+                    console.error('Не удалось скопировать текст: ', err);
+                });
             };
             this.container.onclick = function () {
                 _this.container.classList.toggle('hide', true);
@@ -44092,16 +44107,73 @@ var __values = (this && this.__values) || function(o) {
 /*!*********************!*\
   !*** ./spa/main.ts ***!
   \*********************/
-/***/ ((module, exports, __webpack_require__) => {
+/***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(/*! ./Factory */ "./spa/Factory.ts")], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, Factory_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __read = (this && this.__read) || function (o, n) {
+    var m = typeof Symbol === "function" && o[Symbol.iterator];
+    if (!m) return o;
+    var i = m.call(o), r, ar = [], e;
+    try {
+        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
+    }
+    catch (error) { e = { error: error }; }
+    finally {
+        try {
+            if (r && !r.done && (m = i["return"])) m.call(i);
+        }
+        finally { if (e) throw e.error; }
+    }
+    return ar;
+};
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(/*! ./Factory */ "./spa/Factory.ts")], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, Factory_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", ({ value: true }));
+    function getTextFile(url, callback) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        xhr.onload = function () {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                callback(xhr.responseText);
+            }
+            else {
+                console.error('Request failed:', xhr.statusText);
+            }
+        };
+        xhr.onerror = function () {
+            console.error('Request failed');
+        };
+        xhr.send();
+    }
     window.addEventListener('DOMContentLoaded', function (event) {
         console.log('DOM fully loaded and parsed');
         var appContainer = document.querySelector('.js-app-contaier');
         var factory = new Factory_1.Factory();
         factory.init(appContainer);
+        var urlParams = new URLSearchParams(window.location.search);
+        // Получить значение параметра
+        var boardId = urlParams.get('b');
+        var nodeId = urlParams.get('n');
+        var boardUrl = urlParams.get('u');
+        if (boardUrl) {
+            getTextFile(boardUrl, function (text) {
+                factory.getStorageFactory().getBoardsStorage().importFromStr(text);
+            });
+        }
+        if (boardId) {
+            factory.getStorageFactory().getBoardsStorage().getById(boardId)
+                .then(function (resp) {
+                var _a = __read(resp, 1), board = _a[0];
+                if (!board) {
+                    return;
+                }
+                var appBus = factory.getBusFactory().createAppBus();
+                appBus.setCurrentBoard(board);
+                if (nodeId) {
+                    factory.getComponentsFactory().getAppContainer().getPane().getStage().scale({ x: 1, y: 1 });
+                    appBus.highligtNote(nodeId);
+                }
+            });
+        }
         // Регистрация service worker
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/distr/js/sw.js')
@@ -44385,6 +44457,48 @@ var __values = (this && this.__values) || function(o) {
                 });
             });
         };
+        BoardsStorage.prototype.importFromStr = function (str) {
+            var _this = this;
+            try {
+                var jsonData_1 = JSON.parse(str);
+                this.add(jsonData_1.board);
+                for (var i in jsonData_1.layers) {
+                    this.layersStorage.add(jsonData_1.layers[i]);
+                }
+                for (var i in jsonData_1.notes) {
+                    this.notesStorage.createNote(jsonData_1.notes[i]);
+                }
+                for (var i in jsonData_1.notesLinks) {
+                    this.notesLinksStorage.add(jsonData_1.notesLinks[i]);
+                }
+                var y_1 = 10;
+                var _loop_1 = function (i) {
+                    this_1.tagsStorage.getById(jsonData_1.tags[i].id)
+                        .then(function (resp) {
+                        if (!resp || resp.length == 0) {
+                            _this.tagsStorage.createTag({
+                                id: jsonData_1.tags[i].id,
+                                x: 10,
+                                y: y_1,
+                                title: jsonData_1.tags[i].title,
+                            });
+                            y_1 = y_1 + 80;
+                        }
+                    });
+                };
+                var this_1 = this;
+                for (var i in jsonData_1.tags) {
+                    _loop_1(i);
+                }
+                for (var i in jsonData_1.tagsLinks) {
+                    var l = jsonData_1.tagsLinks[i];
+                    this.tagsLinksStorage.link(l.from, l.to);
+                }
+            }
+            catch (err) {
+                console.error('Некорректный формат файла:', err);
+            }
+        };
         BoardsStorage.prototype.importBoard = function (file) {
             return __awaiter(this, void 0, void 0, function () {
                 var reader;
@@ -44392,44 +44506,7 @@ var __values = (this && this.__values) || function(o) {
                 return __generator(this, function (_a) {
                     reader = new FileReader();
                     reader.onload = function (e) {
-                        try {
-                            var jsonData_1 = JSON.parse(e.target.result);
-                            _this.add(jsonData_1.board);
-                            for (var i in jsonData_1.layers) {
-                                _this.layersStorage.add(jsonData_1.layers[i]);
-                            }
-                            for (var i in jsonData_1.notes) {
-                                _this.notesStorage.createNote(jsonData_1.notes[i]);
-                            }
-                            for (var i in jsonData_1.notesLinks) {
-                                _this.notesLinksStorage.add(jsonData_1.notesLinks[i]);
-                            }
-                            var y_1 = 10;
-                            var _loop_1 = function (i) {
-                                _this.tagsStorage.getById(jsonData_1.tags[i].id)
-                                    .then(function (resp) {
-                                    if (!resp || resp.length == 0) {
-                                        _this.tagsStorage.createTag({
-                                            id: jsonData_1.tags[i].id,
-                                            x: 10,
-                                            y: y_1,
-                                            title: jsonData_1.tags[i].title,
-                                        });
-                                        y_1 = y_1 + 80;
-                                    }
-                                });
-                            };
-                            for (var i in jsonData_1.tags) {
-                                _loop_1(i);
-                            }
-                            for (var i in jsonData_1.tagsLinks) {
-                                var l = jsonData_1.tagsLinks[i];
-                                _this.tagsLinksStorage.link(l.from, l.to);
-                            }
-                        }
-                        catch (err) {
-                            console.error('Некорректный формат файла:', err);
-                        }
+                        _this.importFromStr(e.target.result);
                     };
                     reader.readAsText(file);
                     return [2 /*return*/];
@@ -46091,7 +46168,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 /******/ 	
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
-/******/ 	// This entry module used 'module' so it can't be inlined
+/******/ 	// This entry module is referenced by other modules so it can't be inlined
 /******/ 	var __webpack_exports__ = __webpack_require__("./spa/main.ts");
 /******/ 	
 /******/ })()

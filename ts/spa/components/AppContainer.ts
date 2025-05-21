@@ -37,6 +37,11 @@ export class AppContainer {
         return this.mainMenu;
     }
 
+    public getPane(): Pane
+    {
+        return this.pane;
+    }
+
     public setCurrentBoard(board: TBoard): void {
         this.currentBoard = board;
         this.mainMenu.getLayersPanel().clear();

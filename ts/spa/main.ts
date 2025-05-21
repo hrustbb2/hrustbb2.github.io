@@ -1,10 +1,55 @@
 import { Factory } from "./Factory";
+import { AppBus } from "./bus/AppBus";
+
+function getTextFile(url:string, callback:CallableFunction) {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.onload = function() {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        callback(xhr.responseText);
+      } else {
+        console.error('Request failed:', xhr.statusText);
+      }
+    };
+    xhr.onerror = function() {
+      console.error('Request failed');
+    };
+    xhr.send();
+  }
 
 window.addEventListener('DOMContentLoaded', (event) => {
     console.log('DOM fully loaded and parsed');
     let appContainer = document.querySelector('.js-app-contaier');
     let factory = new Factory();
     factory.init(<HTMLElement>appContainer);
+    const urlParams = new URLSearchParams(window.location.search);
+
+    // Получить значение параметра
+    const boardId = urlParams.get('b');
+    const nodeId = urlParams.get('n');
+    const boardUrl = urlParams.get('u');
+
+    if(boardUrl){
+        getTextFile(boardUrl, (text:string) => {
+            factory.getStorageFactory().getBoardsStorage().importFromStr(text);
+        });
+    }
+
+    if(boardId){
+        factory.getStorageFactory().getBoardsStorage().getById(boardId)
+        .then((resp:any)=>{
+            let [board] = resp;
+            if(!board){
+                return;
+            }
+            let appBus = factory.getBusFactory().createAppBus();
+            appBus.setCurrentBoard(board);
+            if(nodeId){
+                factory.getComponentsFactory().getAppContainer().getPane().getStage().scale({ x: 1, y: 1 });
+                appBus.highligtNote(nodeId);
+            }
+        });
+    }
 
     // Регистрация service worker
     if ('serviceWorker' in navigator) {

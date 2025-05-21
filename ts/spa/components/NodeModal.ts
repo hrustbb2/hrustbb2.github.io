@@ -26,6 +26,8 @@ export class NodeModal {
 
     private cryptBtn: HTMLElement;
 
+    private urlBtn: HTMLElement;
+
     private appCommands: AppComamnds;
 
     private appBus: AppBus;
@@ -61,6 +63,7 @@ export class NodeModal {
         this.editBtn = this.container.querySelector('.js-edit-button');
         this.saveBtn = this.container.querySelector('.js-save-button');
         this.cryptBtn = this.container.querySelector('.js-crypt-button');
+        this.urlBtn = this.container.querySelector('.js-url-button');
 
         this.closeBtn.onclick = () => {
             this.container.classList.toggle('hide', true);
@@ -171,6 +174,18 @@ export class NodeModal {
                 });
 
             this.appBus.updateNavigatonPanel();
+        }
+
+        this.urlBtn.onclick = () => {
+            let url = 'https://hrustbb2.github.io/?b=' + this.data.boardId + '&n=' + this.data.id;
+            console.log(url);
+            navigator.clipboard.writeText(url)
+                .then(() => {
+                    alert('Скопировано в буфер');
+                })
+                .catch(err => {
+                    console.error('Не удалось скопировать текст: ', err);
+                });
         }
 
         this.container.onclick = () => {
