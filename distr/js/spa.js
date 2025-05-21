@@ -44169,8 +44169,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __read = (th
                 var appBus = factory.getBusFactory().createAppBus();
                 appBus.setCurrentBoard(board);
                 if (nodeId) {
-                    factory.getComponentsFactory().getAppContainer().getPane().getStage().scale({ x: 1, y: 1 });
-                    appBus.highligtNote(nodeId);
+                    setTimeout(function () {
+                        factory.getComponentsFactory().getAppContainer().getPane().getStage().scale({ x: 1, y: 1 });
+                        appBus.highligtNote(nodeId);
+                    }, 200);
                 }
             });
         }

@@ -45,8 +45,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
             let appBus = factory.getBusFactory().createAppBus();
             appBus.setCurrentBoard(board);
             if(nodeId){
-                factory.getComponentsFactory().getAppContainer().getPane().getStage().scale({ x: 1, y: 1 });
-                appBus.highligtNote(nodeId);
+                setTimeout(()=>{
+                    factory.getComponentsFactory().getAppContainer().getPane().getStage().scale({ x: 1, y: 1 });
+                    appBus.highligtNote(nodeId);
+                }, 200);
             }
         });
     }
