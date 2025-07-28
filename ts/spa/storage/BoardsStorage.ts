@@ -153,7 +153,7 @@ export class BoardsStorage {
         // }
     }
 
-    public importFromStr(str:string): void
+    public importFromStr(str:string): string
     {
         try {
             const jsonData = JSON.parse(str);
@@ -186,8 +186,10 @@ export class BoardsStorage {
                 let l = jsonData.tagsLinks[i];
                 this.tagsLinksStorage.link(l.from, l.to);
             }
+            return jsonData.board.id;
         }catch (err) {
             console.error('Некорректный формат файла:', err);
+            return null;
         }
     }
 

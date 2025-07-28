@@ -31,7 +31,18 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
     if(boardUrl){
         getTextFile(boardUrl, (text:string) => {
-            factory.getStorageFactory().getBoardsStorage().importFromStr(text);
+            let boardId = factory.getStorageFactory().getBoardsStorage().importFromStr(text);
+            setTimeout(()=>{
+                factory.getStorageFactory().getBoardsStorage().getById(boardId)
+                .then((resp:any)=>{
+                    let [board] = resp;
+                    if(!board){
+                        return;
+                    }
+                    let appBus = factory.getBusFactory().createAppBus();
+                    appBus.setCurrentBoard(board);
+                });
+            }, 200);
         });
     }
     setTimeout(()=>{

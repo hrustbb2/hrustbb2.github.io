@@ -51,11 +51,11 @@ export class AppBus extends Base {
 
     public setCurrentLayer(layer: string): void {
         // settings.currentLayerId = layer;
-        (<Pane>this.componentsFactory.getPane()).setCurrentLayerTag(layer);
+        (<Pane>this.treeComponentsFactory.getPane()).setCurrentLayerTag(layer);
     }
 
     public setVisibleLayers(layers: string[]): void {
-        let linker = this.componentsFactory.getPane().getLinker();
+        let linker = this.treeComponentsFactory.getPane().getLinker();
         linker.setVisibleLayers(layers);
         linker.drawLines();
     }

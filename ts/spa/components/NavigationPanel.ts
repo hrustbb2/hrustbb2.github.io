@@ -4,6 +4,8 @@ export class NavigationPanel {
 
     private container: HTMLElement;
 
+    private searchInput: HTMLInputElement;
+
     private listContainer: HTMLElement;
 
     private visible: boolean = false;
@@ -20,7 +22,12 @@ export class NavigationPanel {
 
     public init(container: HTMLElement): void {
         this.container = container;
+        this.searchInput = this.container.querySelector('.js-search-input');
         this.listContainer = this.container.querySelector('.js-list-container');
+        
+        this.searchInput.oninput = ()=>{
+            console.log(this.notesData);
+        }
     }
 
     public toggleVisible(): void {

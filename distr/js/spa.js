@@ -41375,10 +41375,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
         };
         AppBus.prototype.setCurrentLayer = function (layer) {
             // settings.currentLayerId = layer;
-            this.componentsFactory.getPane().setCurrentLayerTag(layer);
+            this.treeComponentsFactory.getPane().setCurrentLayerTag(layer);
         };
         AppBus.prototype.setVisibleLayers = function (layers) {
-            var linker = this.componentsFactory.getPane().getLinker();
+            var linker = this.treeComponentsFactory.getPane().getLinker();
             linker.setVisibleLayers(layers);
             linker.drawLines();
         };
@@ -42856,8 +42856,13 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             this.appBus = bus;
         };
         NavigationPanel.prototype.init = function (container) {
+            var _this = this;
             this.container = container;
+            this.searchInput = this.container.querySelector('.js-search-input');
             this.listContainer = this.container.querySelector('.js-list-container');
+            this.searchInput.oninput = function () {
+                console.log(_this.notesData);
+            };
         };
         NavigationPanel.prototype.toggleVisible = function () {
             this.visible = !this.visible;
@@ -44156,7 +44161,18 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __read = (th
         var boardUrl = urlParams.get('u');
         if (boardUrl) {
             getTextFile(boardUrl, function (text) {
-                factory.getStorageFactory().getBoardsStorage().importFromStr(text);
+                var boardId = factory.getStorageFactory().getBoardsStorage().importFromStr(text);
+                setTimeout(function () {
+                    factory.getStorageFactory().getBoardsStorage().getById(boardId)
+                        .then(function (resp) {
+                        var _a = __read(resp, 1), board = _a[0];
+                        if (!board) {
+                            return;
+                        }
+                        var appBus = factory.getBusFactory().createAppBus();
+                        appBus.setCurrentBoard(board);
+                    });
+                }, 200);
             });
         }
         setTimeout(function () {
@@ -44498,9 +44514,11 @@ var __values = (this && this.__values) || function(o) {
                     var l = jsonData_1.tagsLinks[i];
                     this.tagsLinksStorage.link(l.from, l.to);
                 }
+                return jsonData_1.board.id;
             }
             catch (err) {
                 console.error('Некорректный формат файла:', err);
+                return null;
             }
         };
         BoardsStorage.prototype.importBoard = function (file) {
@@ -45146,36 +45164,36 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         function AppBus() {
         }
         AppBus.prototype.setComponentsFactory = function (factory) {
-            this.componentsFactory = factory;
+            this.treeComponentsFactory = factory;
         };
         AppBus.prototype.onMoveShape = function (shape) {
-            this.componentsFactory.getPane().getLinker().drawLinesFor(shape);
+            this.treeComponentsFactory.getPane().getLinker().drawLinesFor(shape);
         };
         AppBus.prototype.moveToTop = function (shape) {
-            this.componentsFactory.getPane().getStorage().moveToTop(shape);
+            this.treeComponentsFactory.getPane().getStorage().moveToTop(shape);
         };
         AppBus.prototype.remove = function (shape) {
-            this.componentsFactory.getPane().getStorage().remove(shape);
+            this.treeComponentsFactory.getPane().getStorage().remove(shape);
             shape.remove();
-            this.componentsFactory.getPane().getLinker().removeFor(shape);
+            this.treeComponentsFactory.getPane().getLinker().removeFor(shape);
         };
         AppBus.prototype.addShape = function (shapeType, data) {
-            var shape = this.componentsFactory.getAppFactory().getStorageFactory().getAbstractShapesFactory().createShape(shapeType);
+            var shape = this.treeComponentsFactory.getAppFactory().getStorageFactory().getAbstractShapesFactory().createShape(shapeType);
             shape.init(data);
             shape.load(data);
-            var layer = this.componentsFactory.getPane().getLayer();
+            var layer = this.treeComponentsFactory.getPane().getLayer();
             shape.addToLayer(layer);
-            this.componentsFactory.getPane().getStorage().pushShape(shape);
+            this.treeComponentsFactory.getPane().getStorage().pushShape(shape);
         };
         AppBus.prototype.link = function (fromId, toId) {
-            var storage = this.componentsFactory.getAppFactory().getStorageFactory().getStorage();
+            var storage = this.treeComponentsFactory.getAppFactory().getStorageFactory().getStorage();
             var from = storage.getById(fromId);
             var to = storage.getById(toId);
-            this.componentsFactory.getPane().getLinker().linkShapes(from, to);
-            this.componentsFactory.getPane().getLinker().drawLines();
+            this.treeComponentsFactory.getPane().getLinker().linkShapes(from, to);
+            this.treeComponentsFactory.getPane().getLinker().drawLines();
         };
         AppBus.prototype.unlink = function (from, to) {
-            this.componentsFactory.getPane().getLinker().unlinkShapes(from, to);
+            this.treeComponentsFactory.getPane().getLinker().unlinkShapes(from, to);
         };
         return AppBus;
     }());
